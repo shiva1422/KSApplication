@@ -1,0 +1,8 @@
+
+
+LOGGING:
+*convert KSLog::* to KSLOG* macros
+*minimize logging.
+*complete patform specific
+
+
