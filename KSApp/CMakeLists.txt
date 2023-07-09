@@ -7,7 +7,7 @@ add_library(events  Events/CustomEvents.cpp)
 set(APP_SRCS
         KSApplication.cpp
         JNI/AppJavaCalls.cpp
-        ../Core/KSIO/AssetManager.cpp
+        ../../Core/KSIO/AssetManager.cpp
         IO/KSAssetReader.cpp
         Events/AndroidEvents.cpp
         Events/CustomEvents.cpp
@@ -15,10 +15,10 @@ set(APP_SRCS
 
 add_library(ksapp STATIC ${APP_SRCS})
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../Core/Logger ./kslogger)
+#add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../KSLogger ./kslogger)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../Graphics/KSUI ./ksui)
 
 target_include_directories(ksapp  PUBLIC  ${ANDROID_NDK}/sources/android/native_app_glue)
 
-target_link_libraries(ksapp  ksui kslogger)
+target_link_libraries(ksapp  ksui )

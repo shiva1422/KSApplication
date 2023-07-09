@@ -123,7 +123,7 @@
           this->touchListener->view = this;
         }
 
-        KSFORCEINLINE TouchListener* getTouchListener(){touchListener;}
+        KSFORCEINLINE TouchListener* getTouchListener(){return touchListener;}
 
         //Later modify dispatching as required
         KSFORCEINLINE static bool dispatchTouchEvent(View *view ,const ks::MotionEvent &event )

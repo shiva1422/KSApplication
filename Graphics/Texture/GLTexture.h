@@ -5,8 +5,8 @@
 #ifndef KALASOFT_GLTEXTURE_H
 #define KALASOFT_GLTEXTURE_H
 
-#include <KSMedia/KSFrame//KSImage.h>
-#include <KSMedia/KSFrame/KSFrame.h>
+#include <CMedia/KSImage.h>
+#include <CMedia/KSFrame.h>
 #include "../GLContext.h"
 
 class GLTexture{
