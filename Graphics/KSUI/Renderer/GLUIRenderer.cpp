@@ -17,7 +17,7 @@
 
 bool GLUIRenderer::onRender() {
     //TODO backGroudn
-   // KSLog::info("onRender","drawn");
+   //KSLOGI("onRender","drawn");
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -29,7 +29,7 @@ bool GLUIRenderer::onRender() {
     }
     else
     {
-       // KSLog::error("Renderer","no contentView");
+       //KSLOGE("Renderer","no contentView");
     }
 
 
@@ -42,7 +42,7 @@ bool GLUIRenderer::init()
 
     std::string vert = "#version 310 es" ;
     vert += vertShader;
-    KSLog::info("shader","%s",vertShader);
+    KSLOGI("shader","%s",vertShader);
    // assert(false);
     glContext.create();
     glContext.makeCurrent();
@@ -54,7 +54,7 @@ bool GLUIRenderer::init()
 
 bool GLUIRenderer::setSurfaceWindow(KSWindow &window)
 {
-    KSLog::debug(TAGRENDER,"gl Surface (%d,%d)",window.getWidth(),window.getHeight());
+    KSLOGD(TAGRENDER,"gl Surface (%d,%d)",window.getWidth(),window.getHeight());
     bool res  = glContext.setWindow(window);
    return res;
 }

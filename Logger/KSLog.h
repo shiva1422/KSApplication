@@ -28,6 +28,6 @@ public:
     static int debug(const char *tag,const char* format,...);
 };
 
-#define DEBUGLOG(x...)  KSLog::debug("TODO",x)
+#define DEBUGLOG(x...)  KSLOGD("TODO",x)
 
 #endif //KALASOFT_KSLOG_H

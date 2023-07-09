@@ -6,7 +6,7 @@
 
 void DisplayMetrics::print()
 {
-    KSLog::debug("\nDisplayParams:","screenWidth %d\nscreenHeight %d\ndensityDpi %d\ndeviceStableDensity %d\ndensity %f\nscaled density %f\nxdpi %f\nydpi %f",screenWidth,screenHeight,densityDpi,deviceStableDensity,density,scaledDensity,xdpi,ydpi);
+    KSLOGD("\nDisplayParams:","screenWidth %d\nscreenHeight %d\ndensityDpi %d\ndeviceStableDensity %d\ndensity %f\nscaled density %f\nxdpi %f\nydpi %f",screenWidth,screenHeight,densityDpi,deviceStableDensity,density,scaledDensity,xdpi,ydpi);
 }
 void DisplayMetrics::onScreenRotation()
 {

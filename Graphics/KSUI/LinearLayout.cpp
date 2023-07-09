@@ -9,7 +9,7 @@
 
 LinearLayout::LinearLayout()
 {
-  KSLog::debug(TAG,"Construct");
+  KSLOGD(TAG,"Construct");
 }
 
 LinearLayout::~LinearLayout()
@@ -23,7 +23,7 @@ LinearLayout::~LinearLayout()
        //to remove iter? no need as its already default deleted;
     }
 
-    KSLog::warn(TAG,"Check all properly deleted");
+   KSLOGW(TAG,"Check all properly deleted");
 
 }
 
@@ -70,7 +70,7 @@ void LinearLayout::addView(View *child) {
     {
         if(view == child)
         {
-            KSLog::warn(TAG,"already there");
+           KSLOGW(TAG,"already there");
             return;
         }
     }

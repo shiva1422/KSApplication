@@ -34,7 +34,7 @@ View::View(float startX, float startY, float width, float height)
 void View::setBounds(float startX, float startY, float width, float height)
 {
 
-    //KSLog::debug("setBounds","%d,%d,%d,%d",startX,startY,width,height);
+    //KSLOGD("setBounds","%d,%d,%d,%d",startX,startY,width,height);
     this->startX = startX,this->startY=startY,this->width=width,this->height=height;
 
 }
@@ -90,7 +90,7 @@ void View::fitToBoundsWithCentre(int centreX, int centreY, int BWidth, int BHeig
 /*void View::onScreenRotation()
 {
     //Display Metric should also be rotated x<->y
-     KSLog::info("view screenRot","%f %f %f %f",startX,startY,width,height);
+    KSLOGI("view screenRot","%f %f %f %f",startX,startY,width,height);
      setBounds(startY,startX,width,height);
 }*/
 

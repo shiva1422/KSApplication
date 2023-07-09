@@ -3,11 +3,11 @@
 //
 
 #include <cstdio>
-#include "KSLog.h"
+#include "Logger/KSLog.h"
 #include "android/log.h"
 
 //TODO why not androidlog instead of vprint
-int KSLog::error(const char *tag, const char *format, ...)
+intKSLOGE(const char *tag, const char *format, ...)
 {
     va_list args;
     int res;
@@ -16,7 +16,7 @@ int KSLog::error(const char *tag, const char *format, ...)
     va_end(args);
     return res;
 }
-int KSLog::info(const char *tag, const char *format, ...)
+intKSLOGI(const char *tag, const char *format, ...)
 {
     va_list args;
     int res;
@@ -25,7 +25,7 @@ int KSLog::info(const char *tag, const char *format, ...)
     va_end(args);
     return res;
 }
-int KSLog::warn(const char *tag, const char *format, ...)
+intKSLOGW(const char *tag, const char *format, ...)
 {
     va_list args;
     int res;
@@ -34,7 +34,7 @@ int KSLog::warn(const char *tag, const char *format, ...)
     va_end(args);
     return res;
 }
-int KSLog::verbose(const char *tag, const char *format, ...)
+int KSLOGV(const char *tag, const char *format, ...)
 {
     va_list args;
     int res;
@@ -44,7 +44,7 @@ int KSLog::verbose(const char *tag, const char *format, ...)
     return res;
 }
 
-int KSLog::debug(const char *tag, const char *format, ...)
+int KSLOGD(const char *tag, const char *format, ...)
 {
     va_list args;
     int res;

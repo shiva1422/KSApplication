@@ -17,7 +17,7 @@ CustomEvents::CustomEvents(KSApplication *app) {
     this->app = app;
     int msgpipe[2];
     if (pipe(msgpipe)) {
-        KSLog::error("Custom looper events","could not create pipe: %s", strerror(errno));
+        KSLOGE("Custom looper events","could not create pipe: %s", strerror(errno));
         return ;
     }
     readFd = msgpipe[0];
@@ -28,14 +28,14 @@ CustomEvents::CustomEvents(KSApplication *app) {
     readFd = msgpipe[0];
     writeFd = msgpipe[1];
     ALooper_addFd(app->app->looper, readFd, LOOPER_ID_USER, ALOOPER_EVENT_INPUT, nullptr,&customPollSource);
-    KSLog::verbose("CustomEvent init","success");
+    KSLOGV("CustomEvent init","success");
     bInitialized = true;
 }
 
 
 void CustomEvents::customPollProcess(struct android_app* app, struct android_poll_source* source)
 {
-    KSLog::verbose("Custom poll pRoces","input recieved on Custom Event");
+    KSLOGV("Custom poll pRoces","input recieved on Custom Event");
     CustomEvents  *eventProcessor = (static_cast<KSApplication *>(app->userData))->customEvents;
     if(eventProcessor)
     {

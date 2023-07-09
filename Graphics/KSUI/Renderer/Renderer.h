@@ -6,7 +6,7 @@
 #define KALASOFT_RENDERER_H
 
 #include <Graphics/Display.h>
-#include "KSLogger/KSLog.h"
+#include "Logger/KSLog.h"
 class Renderer {
 
 public:
@@ -14,13 +14,13 @@ public:
 
     void setContent(void *view)
     {
-        KSLog::debug("renderer","set Content");
+        KSLOGD("renderer","set Content");
         this->content = view;
     }
 
     void *getContent() const
     {
-        KSLog::debug("renderer","set Content");
+        KSLOGD("renderer","set Content");
         return  this->content;
     }
 
