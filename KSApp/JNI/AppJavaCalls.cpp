@@ -19,7 +19,7 @@ bool AppJavaCalls::getDisplayMetrics(DisplayMetrics &displayMetrics)
         jmethodID mid = env->GetMethodID(cls, "getDisplayParams", "()[F");
         if (mid == 0)
         {
-            KSLog::error(TAGJNI,"error obtaining the method id get DisplayMetrics");
+           KSLOGE(TAGJNI,"error obtaining the method id get DisplayMetrics");
             detachThread();
             return false;
         }
@@ -53,14 +53,14 @@ bool AppJavaCalls::attachThreadAndFindClass()
         vm->AttachCurrentThread(&env, NULL);
         if (!env)
         {
-            KSLog::error(TAGJNI, "JNIEnv(null) %s and %d ", __func__ , __LINE__);
+            KSLOGE(TAGJNI, "JNIEnv(null) %s and %d ", __func__ , __LINE__);
             detachThread();
             return false;
         }
         cls = (env)->GetObjectClass(app->activity->clazz);
         if(!cls)
         {
-            KSLog::error(TAGJNI,"could not get java object class %s %d",__func__ ,__LINE__);
+            KSLOGE(TAGJNI,"could not get java object class %s %d",__func__ ,__LINE__);
             detachThread();
             return false;
         }

@@ -45,7 +45,7 @@ void GLView::clearBackground()
 
 void GLView::draw() {
 
-   // KSLog::info("GLView","DRAW");
+   //KSLOGI("GLView","DRAW");
    clearBackground();
 
 }
@@ -97,13 +97,13 @@ bool GLView::initializeUI()
     float *verts=(float *)glMapBufferRange(GL_ARRAY_BUFFER,0,sizeof(float)*8,GL_MAP_WRITE_BIT);
     if(verts)
     {
-        KSLog::info("initialize ui","vets");
+        KSLOGI("initialize ui","vets");
         memcpy(verts, defaultVerts, 8 * sizeof(float));
 
     }
     else
     {
-        KSLog::error("initialize ui","vertex upload failed");
+       KSLOGE("initialize ui","vertex upload failed");
         return false;//unamap?
     }
 
@@ -123,7 +123,7 @@ bool GLView::initializeUI()
     else
     {////lazy draw on
         ///uploading defaultVerts everydrawcall
-        KSLog::error("failed","UIINITIalize()-error uploading textCoods");
+       KSLOGE("failed","UIINITIalize()-error uploading textCoods");
         return false;
     }
     glUnmapBuffer(GL_ARRAY_BUFFER);//return GL_false if error
@@ -139,7 +139,7 @@ bool GLView::initializeUI()
     else
     {////lazy draw on
         ///uploading defaultVerts everydrawcall
-        KSLog::error("failed","UIINITIALIZe()-error uploading indices");
+       KSLOGE("failed","UIINITIALIZe()-error uploading indices");
         return false;
     }
     glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);

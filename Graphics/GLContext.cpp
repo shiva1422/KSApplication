@@ -18,12 +18,12 @@ bool GLContext::create()
     eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if(eglDisplay == EGL_NO_DISPLAY)
     {
-        KSLog::error(LOGTAG, "create - no display");
+       KSLOGE(LOGTAG, "create - no display");
         return false;
     }
     if(!eglInitialize(eglDisplay, nullptr, nullptr))//can pass variable to get the result opengl versions
     {
-        KSLog::error(LOGTAG, "create - egl initialize failed");
+       KSLOGE(LOGTAG, "create - egl initialize failed");
         return false;
     }
     //available configs
@@ -53,24 +53,24 @@ bool GLContext::create()
 
     if(!eglChooseConfig(eglDisplay, attribs, &config,1, &numConfigs)||numConfigs<=0)
     {    //////TODO chose the first config
-        KSLog::error(LOGTAG, "eglChooseConfig failed ");
+       KSLOGE(LOGTAG, "eglChooseConfig failed ");
         return false;
 
     }
     if (config == nullptr)
     {
-        KSLog::error(LOGTAG, "Unable to initialize EGLConfig");
+       KSLOGE(LOGTAG, "Unable to initialize EGLConfig");
         return false;
     }
 
     if((eglContext = eglCreateContext(eglDisplay, config, nullptr, context_attribs))==EGL_NO_CONTEXT)
     {
-        KSLog::error(LOGTAG, "context creation failed");
+       KSLOGE(LOGTAG, "context creation failed");
         return false;
     }
 
 
-    KSLog::info(LOGTAG, "created");
+    KSLOGI(LOGTAG, "created");
 
     return true;
 }
@@ -79,7 +79,7 @@ bool GLContext::setWindow(KSWindow &window)
 {
     if(window.get() == nullptr)
     {
-        KSLog::error(LOGTAG,"cant set null window");
+       KSLOGE(LOGTAG,"cant set null window");
         return false;
     }
 
@@ -88,14 +88,14 @@ bool GLContext::setWindow(KSWindow &window)
     if(! eglGetConfigAttrib(eglDisplay, config, EGL_NATIVE_VISUAL_ID, &format))
     {
         //gets the id in format of the display;
-        KSLog::error(LOGTAG, "egl getConfig attrib failed");
+       KSLOGE(LOGTAG, "egl getConfig attrib failed");
         return false;
     }
     ANativeWindow_setBuffersGeometry(window,0,0,format);*///?
     eglSurface = eglCreateWindowSurface(eglDisplay, config,window.get(), nullptr);//surfaceAttribs/////
     if(eglSurface == EGL_NO_SURFACE)
     {
-        KSLog::error(LOGTAG,"window surface creation failed");
+       KSLOGE(LOGTAG,"window surface creation failed");
         return false;
     }
 
@@ -106,7 +106,7 @@ bool GLContext::setWindow(KSWindow &window)
     // glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
     // glEnable(GL_CULL_FACE);
     // glShadeModel(GL_SMOOTH);
-    KSLog::debug(LOGTAG,"surface dimensions(%d,%d)",width,height);
+    KSLOGD(LOGTAG,"surface dimensions(%d,%d)",width,height);
 
     makeCurrent();
 
@@ -122,7 +122,7 @@ bool GLContext::makeCurrent()
 {
     if (eglMakeCurrent(eglDisplay,eglSurface,eglSurface,eglContext ) == EGL_FALSE)
     {
-        KSLog::error(LOGTAG,"Unable to eglMakeCurrent");
+       KSLOGE(LOGTAG,"Unable to eglMakeCurrent");
         return false;
     }
     return true;
@@ -134,10 +134,10 @@ void GLContext::printInfo()
     for (auto name : opengl_info)
     {
         auto info = glGetString(name);
-        KSLog::info(LOGTAG,"OpenGL Info: %s", info);
+        KSLOGI(LOGTAG,"OpenGL Info: %s", info);
     }
 
-    KSLog::info(LOGTAG,"surface Width %d and height %d",width,height);
+    KSLOGI(LOGTAG,"surface Width %d and height %d",width,height);
 
 }
 
@@ -149,34 +149,34 @@ GLenum GLContext::getError(const char *tag) {
     switch (glError)
     {
         case GL_INVALID_ENUM: {
-            KSLog::error(tag, "OPENGL ERROR - INVALID ENUM");
+           KSLOGE(tag, "OPENGL ERROR - INVALID ENUM");
         }
             break;
         case GL_INVALID_VALUE: {
-            KSLog::error(tag, "OPENGL ERROR - INVALID VALUE");
+           KSLOGE(tag, "OPENGL ERROR - INVALID VALUE");
         }
             break;
         case GL_INVALID_OPERATION:
         {
-            KSLog::error(tag, "OPENGL ERROR - INVALID OPERATION");
+           KSLOGE(tag, "OPENGL ERROR - INVALID OPERATION");
         }
             break;
         case GL_INVALID_FRAMEBUFFER_OPERATION:
 
         {
-            KSLog::error(tag,"OPENGL ERROR - INVALIDE FRAMEBUFFER OPERATION - CURRENTLY BOUND FRAMEBUFFER IS NOT FRAME BUFFER COMPLETE");
+           KSLOGE(tag,"OPENGL ERROR - INVALIDE FRAMEBUFFER OPERATION - CURRENTLY BOUND FRAMEBUFFER IS NOT FRAME BUFFER COMPLETE");
         }
         case GL_OUT_OF_MEMORY:
         {
-            KSLog::error(tag,"OPENGL ERROR-NOT ENOUGH MEMORY");
+           KSLOGE(tag,"OPENGL ERROR-NOT ENOUGH MEMORY");
         }
         case GL_NO_ERROR:
         {
-            KSLog::error(tag,"NO OPENGL ERROR");
+           KSLOGE(tag,"NO OPENGL ERROR");
         }
             break;
         default:
-            KSLog::error(tag, "NO OPENGL EROOR OR the opengl error not listed in printglerror");
+           KSLOGE(tag, "NO OPENGL EROOR OR the opengl error not listed in printglerror");
 
     }
 
@@ -188,30 +188,30 @@ GLenum GLContext::getError(const char *tag) {
     {
         case EGL_BAD_DISPLAY :
         {
-            KSLog::error(tag,"EGL ERROR - BAD DISPLAY-DISPLAY IS NOT AN EGL DISPLAY CONNECTION");
+           KSLOGE(tag,"EGL ERROR - BAD DISPLAY-DISPLAY IS NOT AN EGL DISPLAY CONNECTION");
 
         }
             break;
         case EGL_BAD_SURFACE :
         {
-            KSLog::error(tag,"EGL ERROR - BAD SURFACE -SURFACE NOT AN EGL  DRAWING SURFACE");
+           KSLOGE(tag,"EGL ERROR - BAD SURFACE -SURFACE NOT AN EGL  DRAWING SURFACE");
 
         }
             break;
         case EGL_CONTEXT_LOST :
         {
-            KSLog::error(tag,"EGL ERROR - EGL CONTEXT LOST -REINITILIZING EVERYTHING AGAIN NEEDED");
+           KSLOGE(tag,"EGL ERROR - EGL CONTEXT LOST -REINITILIZING EVERYTHING AGAIN NEEDED");
 
         }
             break;
         case EGL_NOT_INITIALIZED:
         {
-            KSLog::error(tag,"EGL ERROR - EGL NOT INITIALIZED - DISPLAY HAS NOT BEEN INITIALIZED");
+           KSLOGE(tag,"EGL ERROR - EGL NOT INITIALIZED - DISPLAY HAS NOT BEEN INITIALIZED");
 
         }
             break;
         default:
-            KSLog::error(tag,"NO EGL ERROR OR ERROR IS NOT LISTED IN pringGlError function");
+           KSLOGE(tag,"NO EGL ERROR OR ERROR IS NOT LISTED IN pringGlError function");
 
     }
     return glError;

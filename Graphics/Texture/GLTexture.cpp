@@ -16,7 +16,7 @@ GLTexture::GLTexture(KSImage image)
     }
     else
     {
-        KSLog::error("GLTexture()","invalid image");
+       KSLOGE("GLTexture()","invalid image");
     }
 
     //TODO DELETE Image; but glBufferdata is async?
@@ -70,7 +70,7 @@ void GLTexture::reset(KSFrame *frame,bool bFreeFrame)
   if(h != height || w != width)
   {
       //TODO can't resize memory without recreate texture?
-      KSLog::warn(TAGLOG,"resizing texture");
+     KSLOGW(TAGLOG,"resizing texture");
       if(glIsTexture(tex))
           glDeleteTextures(1,&tex);
       if(glIsBuffer(pbo))

@@ -107,9 +107,9 @@ void AndroidEvents::onAppCmd(android_app* app, int32_t cmd)
             // bring back a certain functionality, like monitoring the accelerometer
             break;
         default:
-            KSLog::error("UnknownCommand","onAppCMD");
+            KSLOGE("UnknownCommand","onAppCMD");
     }
-    KSLog::info("command handling","done");
+    KSLOGI("command handling","done");
 
 }
 

@@ -32,7 +32,7 @@ GLuint linkShaders(GLuint vertexShaderId, GLuint fragmentShaderId)
                    if(buf)
                    {
                        glGetProgramInfoLog(program,buflen,NULL,buf);
-                       KSLog::error("could not link the  program reason : %s",buf);
+                      KSLOGE(LOGTAG,"could not link the  program reason : %s",buf);
                        free(buf);
                    }
                }
@@ -40,11 +40,11 @@ GLuint linkShaders(GLuint vertexShaderId, GLuint fragmentShaderId)
                program=0;
            }
            else
-               KSLog::debug("linkShader","success");
+               KSLOGD("linkShader","success");
        }
    }
    else
-       KSLog::error(LOGTAG,"vert of frag shader not compiled");
+      KSLOGE(LOGTAG,"vert of frag shader not compiled");
 
     return program;
 }
@@ -63,7 +63,7 @@ GLuint compile(GLenum shaderType,const char *source)
         if(!compiled)
         {
 
-           // KSLog::error(LOGTAG,"shader not compiled getting failure info .....");
+           //KSLOGE(LOGTAG,"shader not compiled getting failure info .....");
             GLint  infolen=0;
             glGetShaderiv(shader,GL_INFO_LOG_LENGTH,&infolen);
             if(infolen)
@@ -72,17 +72,17 @@ GLuint compile(GLenum shaderType,const char *source)
                 if(buf)
                 {
                     glGetShaderInfoLog(shader,infolen,NULL,buf);
-                    KSLog::error(LOGTAG,"compile failed : \n reason %s",buf);
+                   KSLOGE(LOGTAG,"compile failed : \n reason %s",buf);
                     free(buf);
                 }
                 glDeleteShader(shader);
                 shader = 0;
             }
         }
-        else KSLog::debug(LOGTAG,"compile  Success");
+        else KSLOGD(LOGTAG,"compile  Success");
     }
     else
-    KSLog::error(LOGTAG,"compile error %s",shaderType==GL_VERTEX_SHADER?"vertex" : "fragment");//TODO shaderType to string this is not accurate;
+   KSLOGE(LOGTAG,"compile error %s",shaderType==GL_VERTEX_SHADER?"vertex" : "fragment");//TODO shaderType to string this is not accurate;
     return shader;
 
 }
@@ -93,7 +93,7 @@ GLuint Shader::createProgram(const char *vertSrc, const char *fragSrc)
     /**TODO
      * Decide to keep or delete v,f or v can be same for image processing
      */
-     KSLog::debug(LOGTAG,"VID %i FID %i",v,f);
+     KSLOGD(LOGTAG,"VID %i FID %i",v,f);
     return linkShaders(v,f);
 }
 
