@@ -14,7 +14,10 @@
 #include <KSIO/AssetManager.h>
 #include <string>
 #include "Events/MotionEvent.h"
-
+/*
+ * TODO
+ * Rendering ,Now renderer has a window instead better way to abstract Window to have renderers
+ */
 class View;
 class AndroidEvents;
 class CustomEvents;
@@ -55,6 +58,7 @@ public:
 
     bool onInterceptMotionEvent(const ks::MotionEvent& me)  override;
 
+
 protected:
     //lifeCycle and Events
 
@@ -71,7 +75,12 @@ protected:
 
     virtual void onDestroy();
 
+    virtual void setWindow(ANativeWindow *window){this->window.setWindow(window);}
+
+    //TODO pass window from android events as param to window methods.
     virtual void onWindowInit();
+
+    KSWindow getWindow(){return window;}
 
     virtual void onWindowResized();
 
@@ -109,18 +118,20 @@ protected:
     //This is to respect both displaymetrics and ANativeWindowSize,be careful while using
     void forceUpdateDisplayMetrics(DisplayMetrics &displayMetrics);
 
+
 protected:
 
     AAsset *getAsset(const char* assetPath);
 
 protected:
 
+
     DisplayMetrics displayMetrics{0};
 
     //All UI and display related control only through renderer(even dispMetrics and view initalizations)
-    GLUIRenderer renderer;
+     Renderer *renderer;//todo clear resources.
 
-    std::string appName{"KSApplication"};
+     std::string appName{"KSApplication"};
 
 private:
 
@@ -140,7 +151,7 @@ private:
     // GLuint uiProgram;
     bool bWindowInit = false;
     bool bGraphicsInit = false;
-    bool bAppFirstOpen = true;
+    bool bAppFirstOpen = true , bUseGL = false;//TODO bUseGL
 
     int screenOrientation  = ACONFIGURATION_ORIENTATION;
 

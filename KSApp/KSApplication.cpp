@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include "KSApplication.h"
 #include <Logger/KSLog.h>
+#include <KSUI/Renderer/VulkanUIRenderer.h>
 #include "Events/AndroidEvents.h"
 #include "Events/CustomEvents.h"
 #include "KSApp/IO/KSAssetReader.h"
@@ -29,8 +30,12 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     mAssetManager = this;
 
     AppJavaCalls::init(app);
+    if(bUseGL)
+    renderer = new GLUIRenderer();
+    else
+        renderer = new VulkanUIRenderer();
     assert(updateDisplayMetrics());
-    assert(renderer.init());
+    assert(renderer->init());
 
     customEvents = new CustomEvents(this);
 
@@ -70,7 +75,7 @@ void KSApplication::run()
 void KSApplication::onDraw()
 {
     //TODO check accurat bWindowInits
-    if(bWindowInit)renderer.onRender();
+    if(bWindowInit)renderer->onRender();
     else
        KSLOGW(APPTAG,"onDraw window in not initialized");
 }
@@ -86,8 +91,8 @@ void KSApplication::onWindowInit()
     KSLOGV(APPTAG,"WindowInit");
     //JavaCall::hideSystemUI();//TODO some thing check screen dimension for differnt cases like having navigation bars?
    // ANativeWindow_setBuffersGeometry(app->window,displayMetrics.screenWidth,displayMetrics.screenHeight,ANativeWindow_getFormat(app->window));
-    window.setWindow(app->window);
-    renderer.setSurfaceWindow(window);
+    //window.setWindow(app->window);move to AndroidEvents
+    renderer->setWindow(&window);
     bWindowInit=true;
    //TODO a lot..............?
     if (bAppFirstOpen)
@@ -248,14 +253,14 @@ IKSStream *KSApplication::_openAsset(const char *assetPath)
 void KSApplication::setContentView(const View *content)
 {
 
-    renderer.setContent((void *)content);//TODO CONST NOOO?
+    renderer->setContent((void *)content);//TODO CONST NOOO?
 }
 
 View *KSApplication::getContentView() const
 {
 
     //Make sure View* is retruned or
-    return static_cast<View *>(renderer.getContent());
+    return static_cast<View *>(renderer->getContent());
 }
 
 AAsset *KSApplication::getAsset(const char *assetPath)
@@ -263,6 +268,7 @@ AAsset *KSApplication::getAsset(const char *assetPath)
 
     return AAssetManager_open(getAssetManager(),assetPath,AASSET_MODE_RANDOM);
 }
+
 using namespace ks;
 /* Entry point of touch/mouse event into application*/
 bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
@@ -274,5 +280,4 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
 
 
 //Static Memebers
-
 AssetManager* AssetManager::mAssetManager = nullptr;

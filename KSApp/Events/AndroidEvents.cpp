@@ -72,6 +72,7 @@ void AndroidEvents::onAppCmd(android_app* app, int32_t cmd)
             break;
         case APP_CMD_INIT_WINDOW:
         {
+            application->setWindow(app->window);
             application->onWindowInit();
 
         }

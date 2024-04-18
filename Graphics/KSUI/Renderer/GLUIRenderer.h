@@ -17,6 +17,14 @@ public:
 
     bool setSurfaceWindow(KSWindow &window);
 
+    virtual void setWindow(KSWindow *window) override
+    {
+        Renderer::setWindow(window);
+        KSWindow ksWindow;
+        window->setWindow(window->get());//TODO optimize
+        setSurfaceWindow(ksWindow);
+    }
+
     int getWidth(){return glContext.getWidth();}
 
     int getHeight(){return glContext.getHeight();}

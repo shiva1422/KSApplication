@@ -8,6 +8,9 @@ set(UI_SRCS
         GL/GLImageView.cpp
         Renderer/Renderer.cpp
         Renderer/GLUIRenderer.cpp
+
+        #Vulkan separate later
+        Renderer/VulkanUIRenderer.cpp
         )
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/.. ./ksgraphics)
