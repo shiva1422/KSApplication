@@ -7,6 +7,7 @@
 
 #include <vulkan/vulkan_core.h>
 #include<vector>
+#include"VKUtils/VulkanUtils.h"
 #include "KSVkDevice.h"
 #include "ShaderManager.h"
 
@@ -14,10 +15,16 @@
  * TODO check innerclasses would be better?
  */
 class ANativeWindow;
+
 struct KSVkDevice {
 
 public:
 
+    KSVkDevice() = delete;
+    KSVkDevice(const KSVkDevice&) = delete;
+    KSVkDevice& operator=(const KSVkDevice& ) = delete;
+
+    //creating Instance is not apt here;
     VkInstance vkInstance;
     VkPhysicalDevice vkGpu;
     VkDevice vkDevice;
@@ -31,7 +38,9 @@ public:
     bool bInitialized = false;
 
     bool create(ANativeWindow *window, VkApplicationInfo *appInfo);
+
     VkResult loadShader(const char *filePath, VkShaderModule *shaderModule , ShaderType shaderType);
+
     void terminate();
 };
 

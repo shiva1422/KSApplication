@@ -34,7 +34,7 @@
 // Used also for non-vulkan functions but return VK_SUCCESS
 #define VK_CHECK(x) CALL_VK(x)
 
-bool KSVulkan::initialize(ANativeWindow *window)
+bool KSVulkan::initialize(ANativeWindow *window, std::string appName/* =KSApplication*/)
 {
     // Load Android vulkan and retrieve vulkan API function pointers
     if (!InitVulkan())
@@ -46,7 +46,7 @@ bool KSVulkan::initialize(ANativeWindow *window)
     VkApplicationInfo appInfo = {
             .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pNext = nullptr,
-            .pApplicationName = "KSVulkanApp",
+            .pApplicationName = appName.c_str(),
             .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
             .pEngineName = "KSVulkanEngine",
             .engineVersion = VK_MAKE_VERSION(1, 0, 0),
@@ -372,8 +372,7 @@ void KSVulkan::drawFrame()
             .signalSemaphoreCount = 0,
             .pSignalSemaphores = nullptr};
     CALL_VK(vkQueueSubmit(device.queue, 1, &submit_info, render.fence));
-    CALL_VK(
-            vkWaitForFences(device.vkDevice, 1, &render.fence, VK_TRUE, 100000000));
+    CALL_VK(vkWaitForFences(device.vkDevice, 1, &render.fence, VK_TRUE, 100000000));
 
     VkResult result;
     VkPresentInfoKHR presentInfo{

@@ -8,15 +8,19 @@
 #include "vulkan_wrapper.h"
 #include "KSVkDevice.h"
 #include "KSVKTexture.h"
+#include <string>
 #include "Renderers/KSVkRenderer.h"
 
 class KSVulkan {
 
 public:
 
-    bool initialize(ANativeWindow *window);
+    bool initialize(ANativeWindow *window, std::string appName = "KSApplication");
+
     void terminate(void);//TODO optimize
+
     void deleteSwapChain();//TODO Move to Swapchian
+
     void drawFrame();
 
 private:

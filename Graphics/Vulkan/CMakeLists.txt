@@ -9,5 +9,7 @@ include_directories(${SHADERC_DIR}/include)
 
 add_library(ksvulkan STATIC KSVulkan.cpp KSVkDevice.cpp vulkan_wrapper.cpp ShaderManager.cpp Renderers/KSVkRenderer.cpp)
 
+add_library(vkutils STATIC VKUtils/VulkanUtils.cpp)
+
 set(shaderc ${SHADERC_DIR}/obj/local/${CMAKE_ANDROID_ARCH_ABI}/libshaderc_combined.a)
-target_link_libraries(ksvulkan  PRIVATE -DVK_USE_PLATFORM_ANDROID_KHR ${shaderc})
+target_link_libraries(ksvulkan  PRIVATE -DVK_USE_PLATFORM_ANDROID_KHR ${shaderc} vkutils)

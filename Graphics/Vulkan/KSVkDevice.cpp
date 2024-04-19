@@ -78,6 +78,7 @@ bool KSVkDevice::create(ANativeWindow* window, VkApplicationInfo* appInfo)
         }
     }*/
 
+
     std::vector<const char*> instanceExt = {"VK_KHR_surface", "VK_KHR_android_surface"};
 
     //prepare necessary extensions: Vulkan on Android need these to function,create instance with all enabled layers/extensions.//available on the system
@@ -281,7 +282,7 @@ bool KSSwapChain::create(const KSVkDevice &device)
     displayFormat= formats[chosenFormat].format;
 
     // **********************************************************
-    // Create a swap chain (here we choose the minimum available number of surface
+    // Create a swap chain (here  choosing the minimum available number of surface
     // in the chain)//TODO
     VkSwapchainCreateInfoKHR swapchainCreateInfo{
             .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
