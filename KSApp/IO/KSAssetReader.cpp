@@ -24,7 +24,7 @@ int KSAssetReader::read(void *buf, size_t count) {
 
 off_t KSAssetReader::seek(off_t offset, int whence)
 {
-    return AAsset_seek(asset,offset,whence);
+    return AAsset_seek64(asset,offset,whence);
 }
 
 int KSAssetReader::close() {

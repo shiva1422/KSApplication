@@ -11,4 +11,7 @@ set(GRAPHICS_SRCS
 
 add_library(ksgraphics STATIC ${GRAPHICS_SRCS})
 
-target_link_libraries(ksgraphics GLESv3 EGL)
+
+add_subdirectory(Vulkan ./ksvulkan)
+
+target_link_libraries(ksgraphics ksvulkan GLESv3 EGL)

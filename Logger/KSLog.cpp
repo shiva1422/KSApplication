@@ -6,6 +6,7 @@
 #include "Logger/KSLog.h"
 #include "android/log.h"
 
+/*
 //TODO why not androidlog instead of vprint
 intKSLOGE(const char *tag, const char *format, ...)
 {
@@ -53,3 +54,5 @@ int KSLOGD(const char *tag, const char *format, ...)
     va_end(args);
     return res;
 }
+
+*/

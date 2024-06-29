@@ -6,10 +6,12 @@
 #define KALASOFT_RENDERER_H
 
 #include <Graphics/Display.h>
+#include <KSWindow.h>
 #include "Logger/KSLog.h"
 class Renderer {
 
 public:
+
     static void setDisplayMetrics(DisplayMetrics displayMetrics);
 
     void setContent(void *view)
@@ -23,6 +25,8 @@ public:
         KSLOGD("renderer","set Content");
         return  this->content;
     }
+
+    virtual void setWindow(KSWindow *window){this->window = window;}
 
     void setBackGroundColor(float r,float g,float b,float a)
     {
@@ -46,6 +50,8 @@ protected:
     void *content = nullptr;
 
     float r = 0.0,g=0.0,b=0.0,a=1.0;
+
+    KSWindow *window = nullptr;
 
 
 private:

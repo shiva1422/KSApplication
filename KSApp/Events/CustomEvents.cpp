@@ -7,9 +7,8 @@
 #include <cstring>
 #include <Logger/KSLog.h>
 #include "CustomEvents.h"
+#include <android/looper.h>
 #include "KSApp/KSApplication.h"
-
-
 
 
 CustomEvents::CustomEvents(KSApplication *app) {
