@@ -11,6 +11,7 @@
 class KSWindow{
 
 public:
+
     ANativeWindow *get()
     {
         return window;

@@ -18,6 +18,8 @@
 #define KSLOGF(...)((void)__android_log_print(ANDROID_LOG_FATAL,__VA_ARGS__))
 
 /*Dont use below for logging better use above macros*/
+
+/*
 class KSLog {
 
 public:
@@ -27,7 +29,7 @@ public:
     static int verbose(const char *tag,const char* format,...);
     static int debug(const char *tag,const char* format,...);
 };
+ */
 
-#define DEBUGLOG(x...)  KSLOGD("TODO",x)
 
 #endif //KALASOFT_KSLOG_H
