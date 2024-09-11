@@ -12,15 +12,38 @@
 class GLTexture{
 
 public:
+
     GLTexture(){}
-    GLTexture(KSImage image);
-    void create(KSImage &image);
-    void reset(KSFrame *frame,bool bFreeFrame = true);
+
     ~GLTexture();
+
+    GLTexture(const char* path);
+
+    bool setImage(const char *path);
+
+    int getWidth()const{return this->width;}
+
+    int getHeight()const{return this->height;}
+
+    GLuint getTexture()const{return this->tex;}
+
+
+
+    /**
+     * this doesn't handle all the cases yet
+     * @return
+     */
+    bool isValid()const{return tex!=0;}
+
     friend class GLImageView;
+
 protected:
-    int width = 1,height =1;
-    GLuint tex = 0,pbo = 0;
+
+    int width = -1,height = -1;
+
+    GLuint tex = 0;
+
+    bool bCreated = false;
 };
 
 

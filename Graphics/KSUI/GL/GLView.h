@@ -7,6 +7,7 @@
 
 #include <KSUI/View.h>
 #include <Graphics/GLContext.h>
+#include <Geometry.h>
 
 class GLView : public View{
     //Just a View storing GLCoordinates
@@ -17,30 +18,40 @@ public:
 
     void setBounds(float startX, float startY, float width, float height) override;
 
-    void draw() override;
+    void setBounds(float width, float height) override;
+
+    virtual void draw() override;
 
     static  bool initializeUI();
 
-    //returns 4 vertices ,be careful size is 8 floats
-    float* getVertices(){return vertices;}
+    //returns 4 vertices ,be careful size is 8 floats and a pointer
+    float* getVertices(){return  vertices;}
 
-    float getStartXGL();
+    float getStartXGL() const;
 
-    float getStartYGL();
+    float getStartYGL() const;
 
-    float getWidthGL();
+    float getWidthGL() const ;
 
-    float getHeightGL();
+    float getHeightGL() const;
 
-    float getCenterXGL();
+    float getEndXGL() const;
 
-    float getCenterYGL();
+    float getEndYGL() const;
+
+    float getCenterXGL() const;
+
+    float getCenterYGL() const;
+
+    void printBounds(const char* tag);
+
 
 protected:
 
     float  vertices[8];//in GL Coordinates
 
 protected:
+
     //TODO from multiple threads;
     static float  defaultVerts[8];
     static GLuint defaultVertexBufId;

@@ -14,12 +14,14 @@
 #include <KSIO/AssetManager.h>
 #include <string>
 #include "Events/MotionEvent.h"
+#include "Events/KeyEvent.h"
+
 
 class View;
 class AndroidEvents;
 class CustomEvents;
 
-class KSApplication : public AssetManager , public ks::MotionEventInterceptor{
+class KSApplication : public AssetManager , public ks::MotionEventInterceptor, public ks::KeyEventInterceptor{
 
 public:
 
@@ -54,6 +56,8 @@ public:
     DisplayMetrics getDisplayMetrics(){return displayMetrics;}
 
     bool onInterceptMotionEvent(const ks::MotionEvent& me)  override;
+
+    bool onInterceptKeyEvent(const ks::KeyEvent &ke) override;
 
 protected:
     //lifeCycle and Events
@@ -113,6 +117,9 @@ protected:
 
     AAsset *getAsset(const char* assetPath);
 
+    KSImage* _loadImageAsset(const char *path) override;
+
+
 protected:
 
     DisplayMetrics displayMetrics{0};
@@ -141,6 +148,7 @@ private:
     bool bWindowInit = false;
     bool bGraphicsInit = false;
     bool bAppFirstOpen = true;
+    bool bAppDestroyed = false;
 
     int screenOrientation  = ACONFIGURATION_ORIENTATION;
 

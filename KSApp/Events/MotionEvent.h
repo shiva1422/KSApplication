@@ -59,6 +59,7 @@ namespace ks{
 
         KSFORCEINLINE int getPointerCount()const{return AMotionEvent_getPointerCount(event);}
 
+
     };
 
 

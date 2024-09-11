@@ -11,6 +11,7 @@
 
 //TODO DISPLAYMETRIC NO NEED DECIDE ACTUAL PARAMS BEFORE SETTING BOUNDS TO VIEW
     class DisplayMetrics;
+    class ClickListener;
     class View {
 
     public:
@@ -35,18 +36,18 @@
 
             virtual bool onMove(const float &x, const float &y, const ks::TouchID &id/* , isHover?*/){return false;};
 
-            virtual bool onHoverExit(const ks::TouchID &id){return false;}
+            virtual bool onHoverExit(const ks::TouchID &id, const float &x, const float &y) {return false;}
 
-
-
+            virtual bool onHoverEnter(const float &d, const float &d1, const ks::TouchID &i) {return false;}
 
             KSFORCEINLINE bool isHandlingTouch(const ks::TouchID &id){return touchIds.find(id) != touchIds.end();}
 
 
         private:
 
-            //currently handled by this listener,TODO may be associate with motion action as well
+            //Touch Id's currently handled by this listener,TODO may be associate with motion action as well
             std::unordered_set<ks::TouchID> touchIds;
+
 
 
         };
@@ -96,7 +97,10 @@
 
         void fitToBoundsWithCentre(int centreX,int centreY,int BWidth,int BHeight);
 
-        //checking bounds
+        /**
+         * @brief check if point (x,y) lies withing the bounds of this view
+
+         */
         bool isPointInside(float x,float y) const
         {
             return ( x >= startX && x <= (startX + width) && y >= startY && y <= (startY +height));
@@ -104,6 +108,7 @@
 
 
         //color & drawing
+        void setAlpha(float alpha){this->a = alpha;}
         void setBackgroundColor(float red,float green,float blue,float alpha);
 
         virtual void setGradient(float r1,float g1,float b1,float r2,float g2,float b2,float gradientStrength){};
@@ -114,14 +119,18 @@
         virtual void draw() = 0;
 
 
+        View* getParent(){return this->parent;}
+
         //TOUCH
 
-        void setTouchListener(TouchListener *touchListener)
+        void setTouchListener(TouchListener *pTouchListener)
         {
           delete this->touchListener;
-          this->touchListener = touchListener;
+          this->touchListener = pTouchListener;
           this->touchListener->view = this;
         }
+
+        void setClickListener(ClickListener *clickListener);
 
         KSFORCEINLINE TouchListener* getTouchListener(){return touchListener;}
 
@@ -140,24 +149,56 @@
 
         KSFORCEINLINE static bool dispatchTouchUp(const View * view,const float &x,const float &y,const ks::TouchID &id,const bool &isLast)
         {
-            bool res =  (view->touchListener && view->touchListener->onTouchUp(x,y,id,isLast));
-            view->touchListener->touchIds.erase(id);
+            bool res =  (view->touchListener && view->touchListener->isHandlingTouch(id) && view->touchListener->onTouchUp(x,y,id,isLast));
+            if(view->touchListener)
+            {
+                if(isLast)
+                    view->touchListener->touchIds.clear();
+                else
+                view->touchListener->touchIds.erase(id);
+
+            }
+
             return res;
         }
 
         KSFORCEINLINE static bool dispatchMove(const View *view,const float &x,const float &y,const ks::TouchID &id)
         {
-            bool res =  (view->touchListener && view->touchListener->onMove(x,y,id));
-            //TODO use res?
+            bool res = false;
+            if(view->touchListener)
+            {
+                 res =  view->touchListener->onMove(x,y,id);
+                 if(!res)
+                 {
+                     view->touchListener->touchIds.erase(id);
+                 }
+            }
             return res;
         }
 
-        KSFORCEINLINE static bool dispatchHoverExit(const View* view,const ks::TouchID &id)
+        KSFORCEINLINE static bool dispatchHoverExit(const View* view,const float &x,const float &y,const ks::TouchID &id)
         {
-            bool res = (view->touchListener && view->touchListener->onHoverExit(id));
-            view->touchListener->touchIds.erase(id);//TODO check apt
+            bool res = false;
+            if(view->touchListener)
+            {
+                res = view->touchListener->onHoverExit(id, x, y);
+                if(!res)
+                    view->touchListener->touchIds.erase(id);
+            }
+           //TODO check apt if hoverEnter is acceptble
             return res;
 
+        }
+        KSFORCEINLINE static bool dispatchHoverEnter(const View* view,const float &x,const float &y,const ks::TouchID &id)
+        {
+            bool res = false;
+            if(view->touchListener)
+            {
+                 res =  view->touchListener->onHoverEnter(x,y,id);
+                if(res)
+                    view->touchListener->touchIds.insert(id);//TODO check apt
+            }
+            return res;
         }
 
         KSFORCEINLINE static bool isHandlingTouch(const View *view, const ks::TouchID &id)
@@ -165,15 +206,18 @@
             return (view->touchListener && view->touchListener->isHandlingTouch(id));
         }
 
+
+
         //virtual void onScreenRotation();
 
     public:
 
         friend class Renderer;
+        friend class ViewGroup;
 
     protected:
 
-        View *parent = nullptr,*child = nullptr;
+        View *child = nullptr;
 
         static DisplayMetrics dispMetrics;
 
@@ -185,6 +229,7 @@
 
         TouchListener *touchListener= nullptr;
 
+        View *parent = nullptr;
     };
 
 

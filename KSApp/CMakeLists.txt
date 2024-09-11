@@ -21,4 +21,4 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../Graphics/KSUI ./ksui)
 
 target_include_directories(ksapp  PUBLIC  ${ANDROID_NDK}/sources/android/native_app_glue)
 
-target_link_libraries(ksapp  ksui )
+target_link_libraries(ksapp  ksui jnigraphics )

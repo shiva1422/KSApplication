@@ -10,7 +10,8 @@
 class Renderer {
 
 public:
-    static void setDisplayMetrics(DisplayMetrics displayMetrics);
+
+    static void setDisplayMetrics(const DisplayMetrics displayMetrics);
 
     void setContent(void *view)
     {

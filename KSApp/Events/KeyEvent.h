@@ -21,7 +21,7 @@ namespace ks {
 
     public:
 
-       virtual bool onInterceptKeyEvent(KeyEvent keyEvent) = 0;
+       virtual bool onInterceptKeyEvent(const KeyEvent &keyEvent) = 0;
 
     };
 }

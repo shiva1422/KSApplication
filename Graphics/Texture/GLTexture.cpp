@@ -5,113 +5,55 @@
 #include "string"
 #include <Logger/KSLog.h>
 #include <string>
+#include <Media/KSImage/KSImageLoader.h>
 #include "GLTexture.h"
-//TODO different pixFMT // also directly from asset/file or any other sources
+
 #define TAGLOG "GLTexture"
-GLTexture::GLTexture(KSImage image)
+
+GLTexture::GLTexture(const char* path)
 {
-    if(image.isValid())
+    setImage(path);
+}
+
+GLTexture::~GLTexture()
+{
+    glDeleteTextures(1,&tex);
+    tex = 0;
+}
+
+bool GLTexture::setImage(const char* path)
+{
+    KSImage *image = KSImageLoader::loadFromAsset(path);
+    bCreated = true;
+    if( !image || !image->isValid())
     {
-       create(image);
+        //TODO as need now the previous texture remains if existed.
+        KSLOGE(TAGLOG,"couldn't create, invalid image");
+        bCreated = false;//the previous texture is still hold true
+        return bCreated;
     }
+    if(glIsTexture(tex) && ( image->width != width || image->height != height))//TODO format
+        glDeleteTextures(1,&tex);
     else
     {
-       KSLOGE("GLTexture()","invalid image");
+        width = image->width; height = image->height;
+        glGenTextures(1,&tex);
+        glBindTexture(GL_TEXTURE_2D,tex);
+        //TODO.GL_NEAREST is faster
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+        glBindTexture(GL_TEXTURE_2D,tex);
+        bCreated = true;
     }
 
-    //TODO DELETE Image; but glBufferdata is async?
-}
-
-GLTexture::~GLTexture() {
-        //TODO
-}
-
-void GLTexture::create(KSImage &image)
-{
-    //TODO does need pbo always?
-    //TODO if recreate need not delete texure and buf if same dimensions and pixelfmt
-    //also check if glMapBufferRange better
-    width = image.width,height = image.height;
-    if(glIsBuffer(pbo))
-        glDeleteBuffers(1,&pbo);
-    glGenBuffers(1,&pbo);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-    //TODO size and format convert if needed
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, image.data, GL_STATIC_COPY);
-
-    if(glIsTexture(tex))
-        glDeleteTextures(1,&tex);
-    glGenTextures(1,&tex);
-    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
     glBindTexture(GL_TEXTURE_2D,0);
-    //ERRORSS?
+    //delete image; TODO memory leak
+    return bCreated;
 }
 
-void GLTexture::reset(KSFrame *frame,bool bFreeFrame)
-{
-
-    //TODO rewrite;
-  //TODO temp
-  GLContext::getError("reset texture0");
-  std::unordered_map<std::string,int> frameInfo = frame->getPrivData();
-  int h = frameInfo.find("height")->second ;
-  int w = frameInfo.find("width")->second;
-
-
-  if(h != height || w != width)
-  {
-      //TODO can't resize memory without recreate texture?
-     KSLOGW(TAGLOG,"resizing texture");
-      if(glIsTexture(tex))
-          glDeleteTextures(1,&tex);
-      if(glIsBuffer(pbo))
-          glDeleteBuffers(1,&pbo);
-
-      glGenBuffers(1,&pbo);
-      glGenTextures(1,&tex);
-
-
-
-   width = w;height = h;
-  }
-
-    GLContext::getError("reset texture1");
-
-
-    //TODO size and format convert if needed
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo);
-    glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4, frame->getBuffer()->data[0], GL_STATIC_COPY);
-    GLContext::getError("reset texture11");
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GLContext::getError("reset texture5");
-
-    //TODO no need to rcreate texture memory
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    GLContext::getError("reset texture6");
-
-
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER,0);
-    glBindTexture(GL_TEXTURE_2D,0);
-
-    GLContext::getError("reset texture4");
-
-    //TODO decide aysnc PBO still required buffer can delete after first draw?
-    if(bFreeFrame)
-    delete frame->getBuffer();
-}

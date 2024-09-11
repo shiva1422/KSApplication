@@ -8,11 +8,11 @@
 class ImageSize{
     int width = 0 ,height = 0;
 public:
-    int height()
+    int height() const
     {
         return height;
     }
-    int width()
+    int width() const
     {
         return width;
     }
