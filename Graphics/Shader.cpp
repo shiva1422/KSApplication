@@ -4,7 +4,9 @@
 
 #include <Logger/KSLog.h>
 #include <cstdlib>
+#include <assert.h>
 #include "Shader.h"
+#include <KSIO/AssetManager.h>
 
 #define LOGTAG "GLShader"
 
@@ -73,6 +75,7 @@ GLuint compile(GLenum shaderType,const char *source)
                 {
                     glGetShaderInfoLog(shader,infolen,NULL,buf);
                    KSLOGE(LOGTAG,"compile failed : \n reason %s",buf);
+                   KSLOGD(LOGTAG,"\n Shader %s",source);
                     free(buf);
                 }
                 glDeleteShader(shader);
@@ -149,4 +152,63 @@ GLuint Shader::createProgram(IKSStream *vertStr, IKSStream *fragStr)
 
 
 GLuint Shader::baseProg = 0;
+GLuint Shader::rectProg = 0;
 GLuint Shader::texProg = 0;
+GLuint Shader::alphaBlock;
+
+GLint  Shader::textureVertsLocation = 0;
+GLint  Shader::textureCoordsLocation = 0;
+GLint  Shader::rectVertsLocation = 0;
+GLint  Shader::rectColorLocation = 0;
+GLint  Shader::alphaBlockVertsLocation = 0;
+GLint  Shader::alphaBlockTextCoordsLocation = 0;
+GLint Shader::alphaBlockLocation = 0;
+
+/**
+ *TODO handle failures aptly.
+ *TODO add  locations inside the shaders manually.
+ */
+bool Shader::prepareShaders(AssetManager *assetManager)
+{
+    if(assetManager != nullptr)
+    {
+        IKSStream *vertA = assetManager->openAsset("shaders/pianoShaders/texture.vert");
+        IKSStream *fragA = assetManager->openAsset("shaders/pianoShaders/texture.frag");
+        assert(vertA && fragA);
+        texProg = Shader::createProgram(vertA,fragA);
+        if(texProg == 0)
+        {
+            KSLOGE("prepareShaders", "error compiling texture shader");
+            return false;
+        }
+        textureVertsLocation  = glGetAttribLocation(texProg, "verts");
+        textureCoordsLocation  = glGetAttribLocation(texProg,"textureCoords");
+
+        vertA = assetManager->openAsset("shaders/pianoShaders/rect.vert");
+        fragA = assetManager->openAsset("shaders/pianoShaders/rect.frag");
+        assert(vertA && fragA);
+        rectProg = Shader::createProgram(vertA,fragA);
+        if(rectProg == 0)
+        {
+            KSLOGE("prepareShaders", "error compiling rect shader");
+            return false;
+        }
+        rectVertsLocation  = glGetAttribLocation(rectProg, "verts");
+        rectColorLocation  = glGetUniformLocation(rectProg,"color");
+
+        vertA = assetManager->openAsset("shaders/pianoShaders/alphablock.vert");
+        fragA = assetManager->openAsset("shaders/pianoShaders/alphablock.frag");
+        assert(vertA && fragA);
+        alphaBlock = Shader::createProgram(vertA,fragA);
+        if(alphaBlock == 0)
+        {
+            KSLOGE("prepareShaders", "error compiling alphablock shader");
+            return false;
+        }
+        alphaBlockVertsLocation  = glGetAttribLocation(alphaBlock, "verts");
+        alphaBlockTextCoordsLocation  = glGetAttribLocation(alphaBlock,"textureCoords");
+        alphaBlockLocation = glGetUniformLocation(alphaBlock,"blockParams");
+
+    }
+    return true;
+}

@@ -6,7 +6,7 @@
 #include <cstring>
 #include <Logger/KSLog.h>
 #include "View.h"
-
+#include "ClickListener.h"
 
 DisplayMetrics View::dispMetrics = {0};
 /*
@@ -84,6 +84,13 @@ void View::fitToBounds(int BStartX, int BStartY, int BWidth, int BHeight,bool ke
 void View::fitToBoundsWithCentre(int centreX, int centreY, int BWidth, int BHeight)
 {
     fitToBounds(centreX - BWidth/2.0,centreY - BHeight/2.0,BWidth,BHeight);
+}
+
+void View::setClickListener(ClickListener *clickListener)
+{
+    delete this->touchListener;
+    this->touchListener = dynamic_cast<TouchListener *>(clickListener);
+    this->touchListener->view = this;
 }
 
 

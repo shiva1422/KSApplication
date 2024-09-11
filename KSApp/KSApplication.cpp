@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include "KSApplication.h"
 #include <Logger/KSLog.h>
+#include <KSIO/AssetManager.h>
+#include <CMedia/KSImage.h>
 #include <KSUI/Renderer/VulkanUIRenderer.h>
 #include "Events/AndroidEvents.h"
 #include "Events/CustomEvents.h"
@@ -24,6 +26,7 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     this->appName = appName;
     app = papp;
     AndroidEvents::setMotionEventInterceptor(this);
+    AndroidEvents::setKeyEventInterceptor(this);
     app->onAppCmd = AndroidEvents::onAppCmd;
     app->onInputEvent = AndroidEvents::onInputEvent;
     app->userData = this;
@@ -33,7 +36,10 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     if(bUseGL)
     renderer = new GLUIRenderer();
     else
-        renderer = new VulkanUIRenderer();
+    {
+        KSLOGE(APPTAG,"unimplemented vulkan");
+        //renderer = new VulkanUIRenderer();
+    }
     assert(updateDisplayMetrics());
     assert(renderer->init());
 
@@ -41,11 +47,14 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
 
     pthread_setname_np(pthread_self(),appName.c_str());
     //TODO after Created looop();
+    //Shaders Init
+    //
 }
 
 KSApplication::~KSApplication()
 {
-
+    //Clear Shaders
+    //Clear Graphics Context;
 }
 
 void KSApplication::run()
@@ -67,7 +76,7 @@ void KSApplication::run()
 
         onDraw();
 
-    }while(true);//(app->destroyRequested==0);
+    }while(!bAppDestroyed);//(app->destroyRequested==0);
     //dont exit until destroyed requested as only this thread exits not the Activity(apps main thread).  if want to exit call ANativeActivity_finish(or APP_CMD_DESTROY)
 
 }
@@ -77,45 +86,24 @@ void KSApplication::onDraw()
     //TODO check accurat bWindowInits
     if(bWindowInit)renderer->onRender();
     else
-       KSLOGW(APPTAG,"onDraw window in not initialized");
+    {
+      //  KSLOGW(APPTAG,"onDraw window in not initialized");
+    }
 }
 
 void KSApplication::onScreenRotation()
 {
-
+    KSLOGD(APPTAG,"Screen Rotation");
 }
 
 //CallBacks
 void KSApplication::onWindowInit()
 {
-    KSLOGV(APPTAG,"WindowInit");
+    KSLOGD(APPTAG,"WindowInit");
     //JavaCall::hideSystemUI();//TODO some thing check screen dimension for differnt cases like having navigation bars?
    // ANativeWindow_setBuffersGeometry(app->window,displayMetrics.screenWidth,displayMetrics.screenHeight,ANativeWindow_getFormat(app->window));
-    //window.setWindow(app->window);move to AndroidEvents
     renderer->setWindow(&window);
     bWindowInit=true;
-   //TODO a lot..............?
-    if (bAppFirstOpen)
-    {
-        /* assert(Graphics::init_display(this) == STATUS_OK);
-         bAppFirstOpen = false;
-         bWindowInit = true;
-         bGraphicsInit = true;
-         return;*/
-        // bGraphicsInit=vulkanContext.initialize(app);
-        if(!bGraphicsInit)
-        {
-            //bGraphicsInit = glContext.init();
-          //  GLuint shaderId = Shader::createShaderProgram("shaders/ui/vertexShader.glsl","shaders/ui/fragmentShader.glsl");
-           // glUseProgram(shaderId);
-        }
-
-        bWindowInit = true;
-    }
-    else
-    {
-      //  glContext.onAppReopen();
-    }
 }
 void KSApplication::onWindowResized()
 {
@@ -127,7 +115,7 @@ void KSApplication::onWindowRedrawNeeded()
 }
 void KSApplication::onWindowTermination()
 {
-    KSLOGD(this->appName.c_str(),"KS EVENT : Terminating");
+    KSLOGD(this->appName.c_str(),"KS EVENT : Window Terminating");
 }
 void KSApplication::onContentRectChanged()
 {
@@ -158,6 +146,7 @@ void KSApplication::onStop()
 void KSApplication::onDestroy()
 {
     bWindowInit= false;
+    bAppDestroyed = true;
     KSLOGD(this->appName.c_str(),"KS EVENT :Destroy");
 }
 void KSApplication::onFocusGained()
@@ -196,7 +185,6 @@ bool KSApplication ::updateDisplayMetrics()
 {//TODO statick
     bool res = AppJavaCalls::getDisplayMetrics(displayMetrics);
     Renderer::setDisplayMetrics(displayMetrics);
-    displayMetrics.print();
     return res;
 }
 
@@ -277,7 +265,19 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
     return false;
 }
 
+bool KSApplication::onInterceptKeyEvent(const KeyEvent &ke) {
+    return false;
+}
+
 
 
 //Static Memebers
+
+KSImage* KSApplication:: _loadImageAsset(const char *path)
+{
+    return AppJavaCalls::loadImageAsset(path);
+
+}
+
 AssetManager* AssetManager::mAssetManager = nullptr;
+

@@ -14,15 +14,18 @@
 #include <KSIO/AssetManager.h>
 #include <string>
 #include "Events/MotionEvent.h"
+#include "Events/KeyEvent.h"
+
 /*
  * TODO
  * Rendering ,Now renderer has a window instead better way to abstract Window to have renderers
  */
+
 class View;
 class AndroidEvents;
 class CustomEvents;
 
-class KSApplication : public AssetManager , public ks::MotionEventInterceptor{
+class KSApplication : public AssetManager , public ks::MotionEventInterceptor, public ks::KeyEventInterceptor{
 
 public:
 
@@ -57,6 +60,8 @@ public:
     DisplayMetrics getDisplayMetrics(){return displayMetrics;}
 
     bool onInterceptMotionEvent(const ks::MotionEvent& me)  override;
+
+    bool onInterceptKeyEvent(const ks::KeyEvent &ke) override;
 
 
 protected:
@@ -123,6 +128,9 @@ protected:
 
     AAsset *getAsset(const char* assetPath);
 
+    KSImage* _loadImageAsset(const char *path) override;
+
+
 protected:
 
 
@@ -151,7 +159,8 @@ private:
     // GLuint uiProgram;
     bool bWindowInit = false;
     bool bGraphicsInit = false;
-    bool bAppFirstOpen = true , bUseGL = false;//TODO bUseGL
+    bool bAppFirstOpen = true;
+    bool bAppDestroyed = false, bUseGL = true;//TODO bUseGL
 
     int screenOrientation  = ACONFIGURATION_ORIENTATION;
 

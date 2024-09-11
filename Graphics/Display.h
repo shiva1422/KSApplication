@@ -6,6 +6,7 @@
 #define KALASOFT_DISPLAY_H
 
 #include "cstdint"
+#include "Geometry.h"
 
 enum EScreenDirection{X,Y};
 
@@ -41,11 +42,18 @@ public:
         }
     }
 
-    void print();
+    void print() const;
+
+    ks::Point2D<float> getCentre()
+    {
+        return ks::Point2D<float>(screenWidth/2.0,screenHeight/2.0);
+    }
+
 
     void onScreenRotation();
 
     static void get(DisplayMetrics &dispMetrics);
+
 };
 
 #endif //KALASOFT_DISPLAY_H

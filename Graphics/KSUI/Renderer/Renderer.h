@@ -8,11 +8,12 @@
 #include <Graphics/Display.h>
 #include <KSWindow.h>
 #include "Logger/KSLog.h"
+
 class Renderer {
 
 public:
 
-    static void setDisplayMetrics(DisplayMetrics displayMetrics);
+    static void setDisplayMetrics(const DisplayMetrics displayMetrics);
 
     void setContent(void *view)
     {
@@ -26,7 +27,12 @@ public:
         return  this->content;
     }
 
+    virtual int getWidth(){return window != nullptr ? window->getWidth() : -1;}
+
+    virtual int getHeight(){return window != nullptr ? window->getHeight() : -1;}
+
     virtual void setWindow(KSWindow *window){this->window = window;}
+
 
     void setBackGroundColor(float r,float g,float b,float a)
     {

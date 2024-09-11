@@ -8,6 +8,7 @@
 
 #include <android_native_app_glue.h>
 #include <Graphics/Display.h>
+#include <CMedia/KSImage.h>
 
 class AppJavaCalls {
 
@@ -22,6 +23,8 @@ public:
     static bool getDisplayMetrics(DisplayMetrics &displayMetrics);
 
     static bool hideSystemUI();
+
+    static KSImage* loadImageAsset(const char* path);
 
 private:
     static jclass cls;

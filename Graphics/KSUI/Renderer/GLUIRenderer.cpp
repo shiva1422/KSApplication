@@ -21,7 +21,7 @@ bool GLUIRenderer::onRender() {
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(texProg);
+    //glUseProgram(texProg);
     if(content != nullptr)
     {
         View *view = static_cast<View *>(content);

@@ -21,13 +21,13 @@ public:
     {
         Renderer::setWindow(window);
         KSWindow ksWindow;
-        window->setWindow(window->get());//TODO optimize
+        ksWindow.setWindow(window->get());//TODO optimize
         setSurfaceWindow(ksWindow);
     }
 
-    int getWidth(){return glContext.getWidth();}
+    int getWidth()override{return glContext.getWidth();}
 
-    int getHeight(){return glContext.getHeight();}
+    int getHeight()override{return glContext.getHeight();}
 
 public:
 
