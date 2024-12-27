@@ -59,9 +59,17 @@ public:
 
     DisplayMetrics getDisplayMetrics(){return displayMetrics;}
 
+
+public:
+
+    void setKeyEventIntercepor(ks::KeyEventInterceptor *i);
+
+    void setMotionEventInterceptor(ks::MotionEventInterceptor *i);
+
     bool onInterceptMotionEvent(const ks::MotionEvent& me)  override;
 
     bool onInterceptKeyEvent(const ks::KeyEvent &ke) override;
+
 
 
 protected:
@@ -111,6 +119,7 @@ protected:
 
 
 
+
 //Event Loop
 protected:
 
@@ -131,6 +140,7 @@ protected:
     KSImage* _loadImageAsset(const char *path) override;
 
 
+
 protected:
 
 
@@ -140,6 +150,9 @@ protected:
      Renderer *renderer;//todo clear resources.
 
      std::string appName{"KSApplication"};
+
+     bool bWindowInit = false;
+
 
 private:
 
@@ -157,7 +170,6 @@ private:
 
     //VulkanContext vulkanContext;
     // GLuint uiProgram;
-    bool bWindowInit = false;
     bool bGraphicsInit = false;
     bool bAppFirstOpen = true;
     bool bAppDestroyed = false, bUseGL = true;//TODO bUseGL
@@ -167,6 +179,12 @@ private:
     //Activity call backs;Protected?????
 
     //onCreate is the main method;
+
+    std::chrono::time_point<std::chrono::system_clock> frameClock;
+    std::chrono::time_point<std::chrono::system_clock> previousFrameClock;
+
+
+
 
 };
 

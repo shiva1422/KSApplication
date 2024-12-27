@@ -29,6 +29,10 @@ public:
 
     int getHeight()override{return glContext.getHeight();}
 
+    void enableBlending();
+
+    void disableBlending();
+
 public:
 
     GLuint texProg = 0;

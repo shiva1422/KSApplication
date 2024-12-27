@@ -18,7 +18,9 @@ protected:
     //This should also be considered as onClickUp;
     virtual bool onClick() = 0;
 
-    virtual bool onClickDown(){return false;}
+    virtual bool onClickDown(){return false ;}
+
+
 
 
 private:
@@ -42,6 +44,8 @@ private:
 protected:
 
     using View::TouchListener::view;
+
+    float clickX, clickY;
 
 private:
 

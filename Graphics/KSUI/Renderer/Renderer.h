@@ -23,7 +23,7 @@ public:
 
     void *getContent() const
     {
-        KSLOGD("renderer","set Content");
+       // KSLOGD("renderer","set Content");
         return  this->content;
     }
 

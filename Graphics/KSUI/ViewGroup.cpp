@@ -11,6 +11,7 @@ ViewGroup::~ViewGroup(){
 ViewGroup::ViewGroup() {
 
     this->setTouchListener(new ViewGroupTouchListener);
+    children.clear();
 }
 
 void ViewGroup::addView(View *child) {
@@ -23,7 +24,7 @@ void ViewGroup::addView(View *child) {
 void ViewGroup::bringChildToFront(View *child) {
 
 
-    for(int i = 0 ; i < children.size(); ++i)
+    for(int i = 0 ; i < children.size(); ++i)//reversIter
     {
         if(child == children[i] && (children.size() > 1 && i < (children.size()-1)))
         {
@@ -38,7 +39,7 @@ void ViewGroup::bringChildToFront(View *child) {
 
 void ViewGroup::sendChildToBack(View *child) {
 
-    for(int i = 0 ; i < children.size(); ++i)
+    for(int i = 0 ; i < children.size(); ++i)//reverse iter
     {
         if(child == children[i] && (children.size() > 1))
         {
@@ -67,12 +68,14 @@ void ViewGroup::removeView(View *view) {
 }
 
 void ViewGroup::setBounds(float startX, float startY, float width, float height) {
-    View::setBounds(startX, startY, width, height);
+    GLView::setBounds(startX, startY, width, height);
+   // glBounds.setBounds(startX,startY,width,height);
     //TODO childrenViews
 }
 
 void ViewGroup::setBounds(float width, float height) {
     View::setBounds(width, height);
+   // glBounds.setBounds(width,height);
     //TODO childrenViews
 
 }
@@ -90,12 +93,11 @@ void ViewGroup::setGradient(float r1, float g1, float b1, float r2, float g2, fl
 
 }
 
-void ViewGroup::clearBackground() {
-
-    //TODO
-}
 
 void ViewGroup::draw() {
+
+    if(bDrawBackGround)
+    GLView::draw();//let be explicit for now, //TODO custom Background drawer;
 
     for(int i =0; i < children.size() ; i++)
     {
@@ -103,6 +105,20 @@ void ViewGroup::draw() {
     }
 }
 
+View *ViewGroup::getViewContainingPoint(float x, float y) {
+
+    View *child = nullptr;
+    for(int i = children.size()-1; i > -1; --i)
+    {
+        if(children[i] != nullptr && children[i]->isPointInside(x,y))
+        {
+            child = children[i];
+            break;
+        }
+
+    }
+    return child;
+}
 
 
 //TouchListener
@@ -116,7 +132,7 @@ bool ViewGroupTouchListener::onTouch(const ks::MotionEvent &event, View *view) {
 
 bool ViewGroupTouchListener::onTouchDown(const float &x, const float &y, const ks::TouchID &id,
                                          const bool &isPrimary) {
-    ViewGroup *viewGroup = (ViewGroup *)(this->view);
+    ViewGroup *viewGroup = dynamic_cast<ViewGroup*>(this->view);
     if(viewGroup)
     {
 
@@ -146,7 +162,7 @@ bool ViewGroupTouchListener::onTouchUp(const float &x, const float &y, const ks:
                                        const bool &isLast) {
 
     //Check if there is a handler for this ID and if exist dispatch touch up;
-    ViewGroup *viewGroup = (ViewGroup *)(this->view);
+    ViewGroup *viewGroup = dynamic_cast<ViewGroup *>(this->view);
 
     View *handlerView = nullptr;
     auto iter = touchHandlingViews.find(id);
@@ -246,7 +262,7 @@ bool ViewGroupTouchListener::onMove(const float &x, const float &y, const ks::To
 bool ViewGroupTouchListener::onHoverExit(const ks::TouchID &id, const float &x, const float &y) {
 
     KSLOGD("ViewGroupTouchListener", "  onHoverExit");
-    ViewGroup *viewGroup = (ViewGroup *)(this->view);
+    ViewGroup *viewGroup = dynamic_cast<ViewGroup *>(this->view);
 
     View *handlerView = nullptr;
     auto iter = touchHandlingViews.find(id);

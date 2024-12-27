@@ -25,6 +25,8 @@ bool ClickListener::onTouchDown(const float &x, const float &y, const ks::TouchI
     KSLOGD("KSEVENT", "Click Down");
 
     clickPointers.insert({id, {x, y}});
+    clickX = x;
+    clickY = y;
     onClickDown();
     return true;
 
@@ -38,6 +40,8 @@ bool ClickListener::onTouchUp(const float &x, const float &y, const ks::TouchID 
         auto point = clickPointers.find(id)->second;
         if(fabs(point.y - y) < yDiffAllowed && fabs(point.x - x) < xDiffAllowed)
         {
+            clickX = x;
+            clickY = y;
             onClick();
             KSLOGD("KSEVENT", "ClickUp");
 

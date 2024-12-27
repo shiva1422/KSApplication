@@ -10,7 +10,7 @@
 KSAssetReader::KSAssetReader(AAsset *asset) {
 
     this->asset = asset;
-    setSource(this->asset);
+    setSource(this->asset);//TODO this is virtual
 }
 
 KSAssetReader::~KSAssetReader() {

@@ -21,6 +21,9 @@ public:
 
     bool setImage(const char *path);
 
+    bool setTextureImage(KSImage *image);
+
+
     int getWidth()const{return this->width;}
 
     int getHeight()const{return this->height;}
@@ -37,11 +40,11 @@ public:
 
     friend class GLImageView;
 
+    GLuint tex = 0;
+
 protected:
 
     int width = -1,height = -1;
-
-    GLuint tex = 0;
 
     bool bCreated = false;
 };

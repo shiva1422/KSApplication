@@ -17,13 +17,20 @@ GLTexture::GLTexture(const char* path)
 
 GLTexture::~GLTexture()
 {
+    if(glIsTexture(tex))
     glDeleteTextures(1,&tex);
-    tex = 0;
 }
 
 bool GLTexture::setImage(const char* path)
 {
     KSImage *image = KSImageLoader::loadFromAsset(path);
+    return setTextureImage(image);
+}
+
+
+bool GLTexture::setTextureImage(KSImage *image)
+{
+
     bCreated = true;
     if( !image || !image->isValid())
     {
@@ -55,5 +62,6 @@ bool GLTexture::setImage(const char* path)
     glBindTexture(GL_TEXTURE_2D,0);
     //delete image; TODO memory leak
     return bCreated;
+    return false;
 }
 

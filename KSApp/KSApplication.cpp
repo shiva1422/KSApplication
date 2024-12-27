@@ -15,7 +15,7 @@
 #include "Events/CustomEvents.h"
 #include "KSApp/IO/KSAssetReader.h"
 #include "android/log.h"
-
+#include <Shader.h>
 #define APPTAG  "KSApplication"
 #define AppLogV(x) KSLOGV(APPTAG,x)
 
@@ -34,14 +34,20 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
 
     AppJavaCalls::init(app);
     if(bUseGL)
-    renderer = new GLUIRenderer();
+    {
+        renderer = new GLUIRenderer();
+        ((GLUIRenderer *)renderer)->enableBlending();
+    }
+
     else
     {
         KSLOGE(APPTAG,"unimplemented vulkan");
         //renderer = new VulkanUIRenderer();
     }
-    assert(updateDisplayMetrics());
-    assert(renderer->init());
+    updateDisplayMetrics();
+    renderer->init();
+    KSLOGV(appName.c_str(),"prepare Shaders %d", Shader::prepareShaders(this));//TODO move to application/Graphics aptly
+
 
     customEvents = new CustomEvents(this);
 
@@ -62,19 +68,32 @@ void KSApplication::run()
     this->onCreate();
     int eventId,events,fdesc;
     android_poll_source* source;
+
+
+    std::chrono::duration<double> delta;
+    previousFrameClock = std::chrono::system_clock::now();
+    bool bPoll = false;
     do
     {
         runTasks();//here or after event/berfore render ? TODO
-        if((eventId=ALooper_pollAll(0,&fdesc,&events,(void **) &source))>=0)
+        if((eventId = ALooper_pollAll(0,&fdesc,&events,(void **) &source)) >= 0)
         {
             if(source != NULL)
             {
                 source->process(app,source);
+                bPoll = true;
             }
-
         }
 
-        onDraw();
+        frameClock = std::chrono::system_clock::now();
+        delta = frameClock - previousFrameClock;
+        if(delta.count() >= 0.032 || bPoll)//30fps
+        {
+            onDraw();//TODO frame range management;
+            previousFrameClock = std::chrono::system_clock::now();
+            bPoll = false;
+        }
+
 
     }while(!bAppDestroyed);//(app->destroyRequested==0);
     //dont exit until destroyed requested as only this thread exits not the Activity(apps main thread).  if want to exit call ANativeActivity_finish(or APP_CMD_DESTROY)
@@ -87,7 +106,7 @@ void KSApplication::onDraw()
     if(bWindowInit)renderer->onRender();
     else
     {
-      //  KSLOGW(APPTAG,"onDraw window in not initialized");
+        KSLOGW(APPTAG,"onDraw window in not initialized");
     }
 }
 
@@ -278,6 +297,17 @@ KSImage* KSApplication:: _loadImageAsset(const char *path)
     return AppJavaCalls::loadImageAsset(path);
 
 }
+
+void KSApplication::setKeyEventIntercepor(ks::KeyEventInterceptor *i) {
+
+    AndroidEvents::setKeyEventInterceptor(i);
+
+}
+
+void KSApplication::setMotionEventInterceptor(ks::MotionEventInterceptor *i) {
+    AndroidEvents::setMotionEventInterceptor(i);
+}
+
 
 AssetManager* AssetManager::mAssetManager = nullptr;
 

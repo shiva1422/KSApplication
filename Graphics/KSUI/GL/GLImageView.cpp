@@ -6,6 +6,7 @@
 #include "GLImageView.h"
 #include "Display.h"
 #include "Shader.h"
+
 GLImageView::GLImageView(const char* path) {
 
    if(setImage(path))
@@ -24,6 +25,10 @@ bool GLImageView::setImage(const char* path)
 {
     return texture.setImage(path);
 }
+bool GLImageView::setTextureImage( KSImage *image) {
+    return texture.setTextureImage(image);
+}
+
 void GLImageView::clearBackground() {
     GLView::clearBackground();
 }
@@ -33,9 +38,9 @@ void GLImageView::setBounds(float startX, float startY, float width, float heigh
 }
 
 void GLImageView::draw() {
-    //GLView::draw();//TODO
 
-    glEnable(GL_BLEND);
+   // GLView::draw();
+
     if(!texture.isValid())
     {
         clearBackground();
@@ -69,7 +74,8 @@ void GLImageView::setBounds(float width, float height) {
 }
 
 void GLImageView::setXY(int x, int y) {
-    assert(false);
+    //assert(false);
+    KSLOGE("GLImageView","unhandled");
    // View::setXY(x, y);
 }
 
