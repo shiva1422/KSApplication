@@ -19,15 +19,25 @@ public:
 
      GLImageView(const char* path);
 
-    ~GLImageView() override;
+    virtual ~GLImageView() override;
 
     void clearBackground() override;
 
     void setBounds(float startX, float startY, float width, float height) override;
 
+
     void draw() override;
 
     bool setImage(const char* path);
+
+    bool setTextureImage(KSImage *image);
+
+    bool setGLTexture(const GLTexture* tex)
+    {
+        this->texture.tex = tex->tex;//TODO previous texture handle
+        return true;
+    }
+
 
     void setBounds(float width, float height) override;
 
@@ -35,6 +45,7 @@ public:
 
     void setGradient(float r1, float g1, float b1, float r2, float g2, float b2,
                      float gradientStrength) override;
+
 
 protected:
     //TODO reset as req

@@ -32,7 +32,7 @@ namespace ks
 
         InputEvent(AInputEvent *pEvent):event(pEvent){}
 
-        KSFORCEINLINE EInputEventType getEventType(){return static_cast<EInputEventType>(AInputEvent_getType(event));}
+        KSFORCEINLINE EInputEventType getEventType()const{return static_cast<EInputEventType>(AInputEvent_getType(event));}
 
 
 

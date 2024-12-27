@@ -22,7 +22,26 @@ namespace ks
         T x , y;
     };
 
+
+    template<typename T> class Point3D{
+
+    public:
+
+        Point3D(){}
+
+        Point3D(T x, T y, T z)
+        {
+            this->x = x;
+            this->y = y;
+            this->z = z;
+        }
+
+        T x , y , z;
+    };
+
+
     typedef Point2D<float> Point2DF;
+    typedef Point3D<float> Point3DF;
 
 
 }

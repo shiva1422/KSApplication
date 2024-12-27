@@ -28,12 +28,13 @@ int32_t AndroidEvents::onInputEvent(android_app* papp, AInputEvent* event)
     else if(eventWrap.getEventType() == ks::EInputEventType::FOCUS)
     {
         //TODO
-        assert(false);
+        //assert(false);
+        KSLOGE("AndroidEvent","unhandled");
     }
     else
     {
         KSLOGE("KSEVENT","UNKOWN TYPE");
-        assert(false);
+       // assert(false);
     }
 
     return 0;

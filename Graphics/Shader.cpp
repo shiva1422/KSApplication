@@ -53,7 +53,7 @@ GLuint linkShaders(GLuint vertexShaderId, GLuint fragmentShaderId)
 
 GLuint compile(GLenum shaderType,const char *source)
 {
-    GLuint shader=glCreateShader(shaderType);
+    GLuint shader = glCreateShader(shaderType);
 
     if(shader)
     {
@@ -128,9 +128,15 @@ GLuint Shader::createProgram(IKSStream *vertStr, IKSStream *fragStr)
             {
                 v[vSize] = '\0';
                 f[fSize] = '\0';
+                KSLOGD("Shader : ","Vertex \n : %s",v);
+                KSLOGD("Shader :", "Fragment \n %s",f);
 
             }
-            //else TODO
+            else
+            {
+                KSLOGE("Shader :","read to buf error");
+                return 0;
+            }
 
            program =  createProgram(v,f);
         }
@@ -172,8 +178,8 @@ bool Shader::prepareShaders(AssetManager *assetManager)
 {
     if(assetManager != nullptr)
     {
-        IKSStream *vertA = assetManager->openAsset("shaders/pianoShaders/texture.vert");
-        IKSStream *fragA = assetManager->openAsset("shaders/pianoShaders/texture.frag");
+        IKSStream *vertA = assetManager->openAsset("shaders/texture.vert");
+        IKSStream *fragA = assetManager->openAsset("shaders/texture.frag");
         assert(vertA && fragA);
         texProg = Shader::createProgram(vertA,fragA);
         if(texProg == 0)
@@ -184,8 +190,8 @@ bool Shader::prepareShaders(AssetManager *assetManager)
         textureVertsLocation  = glGetAttribLocation(texProg, "verts");
         textureCoordsLocation  = glGetAttribLocation(texProg,"textureCoords");
 
-        vertA = assetManager->openAsset("shaders/pianoShaders/rect.vert");
-        fragA = assetManager->openAsset("shaders/pianoShaders/rect.frag");
+        vertA = assetManager->openAsset("shaders/rect.vert");
+        fragA = assetManager->openAsset("shaders/rect.frag");
         assert(vertA && fragA);
         rectProg = Shader::createProgram(vertA,fragA);
         if(rectProg == 0)
@@ -196,8 +202,8 @@ bool Shader::prepareShaders(AssetManager *assetManager)
         rectVertsLocation  = glGetAttribLocation(rectProg, "verts");
         rectColorLocation  = glGetUniformLocation(rectProg,"color");
 
-        vertA = assetManager->openAsset("shaders/pianoShaders/alphablock.vert");
-        fragA = assetManager->openAsset("shaders/pianoShaders/alphablock.frag");
+        vertA = assetManager->openAsset("shaders/alphablock.vert");
+        fragA = assetManager->openAsset("shaders/alphablock.frag");
         assert(vertA && fragA);
         alphaBlock = Shader::createProgram(vertA,fragA);
         if(alphaBlock == 0)

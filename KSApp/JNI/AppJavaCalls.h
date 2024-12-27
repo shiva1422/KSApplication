@@ -24,6 +24,15 @@ public:
 
     static bool hideSystemUI();
 
+    static void gotoPlayStore();
+
+    static void openPrivacyPolicy();
+
+    static void showBannerAd();
+
+    static void dismissBannerAd();
+
+
     static KSImage* loadImageAsset(const char* path);
 
 private:

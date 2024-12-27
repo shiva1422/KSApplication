@@ -9,11 +9,19 @@
 
 namespace ks {
 
+    enum EKeyCode{
+
+        KS_KEY_CODE_BACK = AKEYCODE_BACK
+    };
+
+
     class KeyEvent : InputEvent{
 
     public:
 
         KeyEvent(AInputEvent *e):ks::InputEvent(e){};
+
+        EKeyCode getKeyCode() const {return static_cast<EKeyCode>(AKeyEvent_getKeyCode(event));}
 
 
     };

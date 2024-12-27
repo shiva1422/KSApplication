@@ -39,14 +39,9 @@ bool GLUIRenderer::onRender() {
 
 bool GLUIRenderer::init()
 {
-
-    std::string vert = "#version 310 es" ;
-    vert += vertShader;
-    KSLOGI("shader","%s",vertShader);
-   // assert(false);
     glContext.create();
     glContext.makeCurrent();
-    texProg = Shader::createProgram(vertShader,fragShader);
+    //texProg = Shader::createProgram(vertShader,fragShader);
    // sleep(10);
     return GLView::initializeUI();
 
@@ -56,5 +51,17 @@ bool GLUIRenderer::setSurfaceWindow(KSWindow &window)
 {
     KSLOGD(TAGRENDER,"gl Surface (%d,%d)",window.getWidth(),window.getHeight());
     bool res  = glContext.setWindow(window);
+    enableBlending();
    return res;
+}
+
+void GLUIRenderer::enableBlending() {
+
+    glEnable(GL_BLEND);//TODO global management;
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void GLUIRenderer::disableBlending() {
+
+    glDisable(GL_BLEND);
 }

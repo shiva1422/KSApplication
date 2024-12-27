@@ -7,7 +7,7 @@
 #include <Logger/KSLog.h>
 #include "View.h"
 #include "ClickListener.h"
-
+#include "ViewGroup.h"
 DisplayMetrics View::dispMetrics = {0};
 /*
  * Check centreX , centre Y without bounds
@@ -16,8 +16,10 @@ View::View(){}
 
 View::~View()
 {
-    delete touchListener;
-    touchListener = nullptr;
+    if(touchListener)
+    {
+        delete touchListener;
+    }
 }
 
 View::View(float width, float height)
@@ -91,6 +93,16 @@ void View::setClickListener(ClickListener *clickListener)
     delete this->touchListener;
     this->touchListener = dynamic_cast<TouchListener *>(clickListener);
     this->touchListener->view = this;
+}
+
+void View::removeFromParent() {
+
+    if(parent)
+    {
+        ViewGroup *p = (ViewGroup*)parent;
+        p->removeView(this);
+    }
+
 }
 
 

@@ -6,10 +6,7 @@
 #include "Shader.h"
 void RectView::draw() {
 
-   // GLView::draw();
-   //color can actually embedded in vertices;
-    glEnable(GL_BLEND);//TODO global management;
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
    //TODO vao
     glUseProgram(Shader::getRectProgram());
     glEnableVertexAttribArray(Shader::getRectVertsLocation());
@@ -24,6 +21,5 @@ void RectView::draw() {
     glDisableVertexAttribArray(Shader::getRectVertsLocation());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 
-    glDisable(GL_BLEND);
 
 }

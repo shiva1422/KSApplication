@@ -9,7 +9,7 @@
 #include <Graphics/GLContext.h>
 #include <Geometry.h>
 
-class GLView : public View{
+class GLView : public  View{
     //Just a View storing GLCoordinates
     // call initializeUI() before any GLView operations;//TODO move this to renderer of specific thread
 public:
@@ -20,9 +20,16 @@ public:
 
     void setBounds(float width, float height) override;
 
+    void setBoundsGL(float glsx,float glsy,float glWidth,float glHeight);
+
+    void setVertices(float v[]);
+
+    void translate(float tx, float ty);
+
     virtual void draw() override;
 
     static  bool initializeUI();
+
 
     //returns 4 vertices ,be careful size is 8 floats and a pointer
     float* getVertices(){return  vertices;}

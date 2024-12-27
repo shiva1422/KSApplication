@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18.1)
+cmake_minimum_required(VERSION 3.31.0)
 
 
 set(GRAPHICS_SRCS
@@ -11,7 +11,9 @@ set(GRAPHICS_SRCS
 
 add_library(ksgraphics STATIC ${GRAPHICS_SRCS})
 
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../Media/KSImage ./ksimage)
+
 
 #add_subdirectory(Vulkan ./ksvulkan)
 
-target_link_libraries(ksgraphics  GLESv3 EGL)
+target_link_libraries(ksgraphics  ksimage GLESv3 EGL)

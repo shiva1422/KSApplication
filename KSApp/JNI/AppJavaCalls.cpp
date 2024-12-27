@@ -134,3 +134,73 @@ KSImage* AppJavaCalls::loadImageAsset(const char *path)
 
     return image;
 }
+
+void AppJavaCalls::gotoPlayStore() {
+
+    if(attachThreadAndFindClass())
+    {
+        jmethodID mid = env->GetMethodID(cls, "gotoPlaystore", "()V");
+        if (mid == 0)
+        {
+            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            //detachThread();
+            return ;
+        }
+        env->CallVoidMethod(app->activity->clazz,mid);
+    }
+
+    detachThread();
+}
+
+void AppJavaCalls::openPrivacyPolicy() {
+
+    if(attachThreadAndFindClass())
+    {
+        jmethodID mid = env->GetMethodID(cls, "openPrivacyPolicy", "()V");
+        if (mid == 0)
+        {
+            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            //detachThread();
+            return ;
+        }
+        env->CallVoidMethod(app->activity->clazz,mid);
+    }
+
+    detachThread();
+}
+
+void AppJavaCalls::showBannerAd() {
+
+    if(attachThreadAndFindClass())
+    {
+        jmethodID mid = env->GetMethodID(cls, "showBannerAd", "()V");
+        if (mid == 0)
+        {
+            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            //detachThread();
+            return ;
+        }
+        env->CallVoidMethod(app->activity->clazz,mid);
+    }
+
+    detachThread();
+
+}
+
+void AppJavaCalls::dismissBannerAd() {
+
+    if(attachThreadAndFindClass())
+    {
+        jmethodID mid = env->GetMethodID(cls, "dismissBannerAd", "()V");
+        if (mid == 0)
+        {
+            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            //detachThread();
+            return ;
+        }
+        env->CallVoidMethod(app->activity->clazz,mid);
+    }
+
+    detachThread();
+
+}

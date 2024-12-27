@@ -5,6 +5,7 @@
 #include <Logger/KSLog.h>
 #include <cstring>
 #include <cassert>
+#include <Shader.h>
 #include "GLView.h"
 #include "Display.h"
 
@@ -29,6 +30,26 @@ void GLView::setBounds(float startX, float startY, float width, float height)
     vertices[7] = vertices[5];
 }
 
+void GLView::setBoundsGL(float glsx, float glsy, float glWidth, float glHeight) {
+
+    //X's
+    vertices[0] = glsx;//left
+    vertices[2] = glsx + glWidth;//right
+    vertices[4] = vertices[2];
+    vertices[6] = vertices[0];
+    //Y's
+    vertices[1] = glsy - glHeight;//bottom
+    vertices[3] = vertices[1];
+    vertices[5] = glsy;//top
+    vertices[7] = vertices[5];
+
+    startX = (vertices[0] + 1) * (float)dispMetrics.screenWidth/2.0;
+    startY = (- vertices[5] + 1) * dispMetrics.screenHeight/2.0;
+    height = glHeight *(float)dispMetrics.screenHeight/2.0;
+    width = glWidth *(float)dispMetrics.screenWidth/2.0;
+    //TODO super
+}
+
 void GLView::setBounds(float width, float height) {
     setBounds(0,0,width, height);
 }
@@ -36,13 +57,13 @@ void GLView::setBounds(float width, float height) {
 
 void GLView::clearBackground()
 {
-    //TODO decide apt way;
-    //glViewport()
     glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_BLEND);
     glScissor(startX,dispMetrics.screenHeight-startY-height,width,height);//if glScissor enable after this then scissor bounds should bes same as viewport bounds;
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_SCISSOR_TEST);
+
 }
 
 
@@ -51,7 +72,18 @@ void GLView::clearBackground()
 void GLView::draw() {
 
    //KSLOGI("GLView","DRAW");
-   clearBackground();
+ //  if(bVisible)
+
+    glUseProgram(Shader::getRectProgram());
+    glEnableVertexAttribArray(Shader::getRectVertsLocation());
+    glVertexAttribPointer(Shader::getRectVertsLocation(),2,GL_FLOAT,GL_FALSE,0,(void *)vertices);
+
+    glUniform4f(Shader::getRectColorLocation(),r,g,b,a);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,GLView::defaultIndexBufId);
+    glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_SHORT, nullptr);
+
+    glDisableVertexAttribArray(Shader::getRectVertsLocation());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 
 }
 
@@ -87,14 +119,13 @@ float GLView::getHeightGL()const
 }
 
 float GLView::getCenterXGL()const {
-    assert(false);//implement;
-    return 0;
+
+    return vertices[0] + getWidthGL()/2.0;
 }
 
 float GLView::getCenterYGL()const {
 
-    assert(false);//implement
-    return 0;
+    return vertices[5] + getHeightGL()/2.0;
 }
 
 bool GLView::initializeUI()
@@ -163,11 +194,41 @@ bool GLView::initializeUI()
     return true;
 }
 
+
+
+
 void GLView::printBounds(const char *tag) {
 
     KSLOGI(tag, " X  = %f , Y = %f , width = %f, height = %f \n vertices : v0(%f,%f), v1(%f,%f), v2(%f,%f), v3(%f,%f),",startX,startY,width,height,vertices[0],vertices[1],vertices[2],vertices[3],vertices[4],vertices[5],vertices[6],vertices[7]);
 
 }
+
+void GLView::translate(float tx, float ty) {
+
+    vertices[0] += tx;
+    vertices[2] += tx;
+    vertices[4] += tx;
+    vertices[6] += tx;
+
+    vertices[1] += ty;
+    vertices[3] += ty;
+    vertices[5] += ty;
+    vertices[7] += ty;
+
+}
+
+void GLView::setVertices(float *v) {
+
+    for(int i = 0 ; i < 8; ++i)
+    {
+        vertices[i] = v[i];
+    }
+
+
+}
+
+
+
 
 
 

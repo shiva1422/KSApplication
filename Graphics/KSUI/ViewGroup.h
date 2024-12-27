@@ -7,15 +7,16 @@
 
 #include "View.h"
 #include<vector>
+#include <KSUI/GL/GLView.h>
 
-//TODO implement ViewParent and ViewManager also margins,border etc
-class ViewGroup : public View{
+//TODO Merge this into View, no explicit class required;
+class ViewGroup : public GLView{
 
 public:
 
     ViewGroup();
 
-    ~ViewGroup();
+    ~ViewGroup() override;
 
     virtual void addView(View * child);
 
@@ -38,7 +39,7 @@ public:
     void setGradient(float r1, float g1, float b1, float r2, float g2, float b2,
                      float gradientStrength) override;
 
-    void clearBackground() override;
+    View* getViewContainingPoint(float x,float y);
 
 
 protected:
@@ -60,16 +61,15 @@ protected:
     void sendChildToBack(View *child);
 
 
+protected:
 
+//the index is considered the z-order; lower index means at the bottom; //Can also construct and 2D graph if the need comes;
 
-
-private:
-
-    //the index is considered the z-order;
     std::vector<View *> children;
 
-
     friend class ViewGroupTouchListener;
+
+    GLView glBounds;//Bounds of this View
 
 };
 
@@ -84,7 +84,7 @@ protected:
 
     /**
      * @brief :  Dispatch touch to the first view(in the LIFO order the views were added as children ) that contains (x,y)  within its bounds, if that view doesn't handle touch down, the touch down events are not navigated to the views below it and if required the functionality needs to be added here.
-     * @return : returns true if  any child has handled the touch down and further events will be navigated to that view only if it returned true;
+     * @return : returns true if  any child has handled the touch down and further events with the same TouchID will be navigated to that view only if it returned true;
      */
     bool onTouchDown(const float &x, const float &y, const ks::TouchID &id,
                      const bool &isPrimary) override;
@@ -97,6 +97,8 @@ protected:
     bool onHoverExit(const ks::TouchID &id, const float &x, const float &y) override;
 
     bool onHoverEnter(const float &x, const float &y,const ks::TouchID &id)override;
+
+
 
 private:
 

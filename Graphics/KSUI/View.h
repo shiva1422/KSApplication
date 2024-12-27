@@ -109,6 +109,7 @@
 
         //color & drawing
         void setAlpha(float alpha){this->a = alpha;}
+
         void setBackgroundColor(float red,float green,float blue,float alpha);
 
         virtual void setGradient(float r1,float g1,float b1,float r2,float g2,float b2,float gradientStrength){};
@@ -120,6 +121,9 @@
 
 
         View* getParent(){return this->parent;}
+
+        void removeFromParent();
+
 
         //TOUCH
 
@@ -215,6 +219,8 @@
         friend class Renderer;
         friend class ViewGroup;
 
+        bool bDrawBackGround = false;
+
     protected:
 
         View *child = nullptr;
@@ -223,11 +229,13 @@
 
         float startX = 0,startY = 0,width = 50,height = 50;
 
-        float r = 0.5f,g = 0.5f,b = 0.5f,a = 1.0f;
+        float r = 0.5f,g = 0.5f,b = 0.5f,a = 0.0f;
 
         bool bVisible = true;
 
+
         TouchListener *touchListener= nullptr;
+
 
         View *parent = nullptr;
     };

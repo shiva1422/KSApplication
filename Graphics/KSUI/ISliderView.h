@@ -6,6 +6,7 @@
 #define KALASOFT_ISLIDERVIEW_H
 
 #include "View.h"
+
 class ISliderView : public View {
 
     //TODO ONCHangeListeneres;
