@@ -6,7 +6,9 @@ set(GRAPHICS_SRCS
         GLContext.cpp
         KSWindow.cpp
         Display.cpp
-        Shader.cpp)
+        Shader.cpp
+        GLFrameBuffer.cpp
+        )
 
 
 add_library(ksgraphics STATIC ${GRAPHICS_SRCS})

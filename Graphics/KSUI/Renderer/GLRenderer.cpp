@@ -6,7 +6,7 @@
 #include <KSUI/View.h>
 #include <Shader.h>
 #include <unistd.h>
-#include "GLUIRenderer.h"
+#include "GLRenderer.h"
 #include "string"
 
 #define TAGRENDER "GLUIRenderer"
@@ -15,7 +15,7 @@
 #include "Shaders/vert.glsl"
 #include "Graphics/KSUI/GL/GLView.h"
 
-bool GLUIRenderer::onRender() {
+bool GLRenderer::onRender() {
     //TODO backGroudn
    //KSLOGI("onRender","drawn");
     glClearColor(r,g,b,a);
@@ -37,17 +37,15 @@ bool GLUIRenderer::onRender() {
     return glContext.swapBuffers();
 }
 
-bool GLUIRenderer::init()
+bool GLRenderer::init()
 {
     glContext.create();
     glContext.makeCurrent();
-    //texProg = Shader::createProgram(vertShader,fragShader);
-   // sleep(10);
     return GLView::initializeUI();
 
 }
 
-bool GLUIRenderer::setSurfaceWindow(KSWindow &window)
+bool GLRenderer::setSurfaceWindow(KSWindow &window)
 {
     KSLOGD(TAGRENDER,"gl Surface (%d,%d)",window.getWidth(),window.getHeight());
     bool res  = glContext.setWindow(window);
@@ -55,13 +53,25 @@ bool GLUIRenderer::setSurfaceWindow(KSWindow &window)
    return res;
 }
 
-void GLUIRenderer::enableBlending() {
+void GLRenderer::enableBlending() {
 
     glEnable(GL_BLEND);//TODO global management;
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void GLUIRenderer::disableBlending() {
+void GLRenderer::disableBlending() {
 
     glDisable(GL_BLEND);
 }
+
+void GLRenderer::setContent(void *view) {
+    Renderer::setContent(view);
+    ((View *)content)->setRenderer(this);
+}
+
+bool GLRenderer::initOffScreenShared(GLRenderer *sharedRenderer, int width, int height) {
+
+    return glContext.createSharedOffScreenContext(sharedRenderer->getGLContext(),width,height);
+
+}
+

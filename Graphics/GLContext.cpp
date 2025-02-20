@@ -3,12 +3,20 @@
 //
 
 #include <Logger/KSLog.h>
+#include <assert.h>
 #include "GLContext.h"
 #include "initializer_list"
 #define LOGTAG "GLContext"
 #include "KSWindow.h"
 
 //TODO choose config right
+
+GLContext::~GLContext() {
+
+    eglDestroySurface(eglDisplay,eglSurface);
+    eglDestroyContext(eglDisplay,eglContext);
+}
+
 bool GLContext::create()
 {
 
@@ -110,9 +118,8 @@ bool GLContext::setWindow(KSWindow &window)
 
     makeCurrent();
 
-    glViewport(0,0,width,height);
-    printInfo();
 
+    printInfo();
 
     return true;
 
@@ -120,12 +127,62 @@ bool GLContext::setWindow(KSWindow &window)
 
 bool GLContext::makeCurrent()
 {
-    if (eglMakeCurrent(eglDisplay,eglSurface,eglSurface,eglContext ) == EGL_FALSE)
+    bool res = eglMakeCurrent(eglDisplay,eglSurface,eglSurface,eglContext );
+    glViewport(0,0,width,height);
+    return res;
+}
+
+bool GLContext::createSharedOffScreenContext(const GLContext *sharedContext, int bufferWidth, int bufferHeight) {
+
+    const EGLint attribs[]={EGL_RENDERABLE_TYPE,EGL_OPENGL_ES3_BIT,EGL_BLUE_SIZE, 8,EGL_GREEN_SIZE, 8,EGL_RED_SIZE, 8, EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,EGL_NONE};
+    const EGLint context_attribs[]={EGL_CONTEXT_CLIENT_VERSION,3,EGL_NONE};
+    EGLint numConfigs;
+    eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if(eglDisplay == EGL_NO_DISPLAY)
     {
-       KSLOGE(LOGTAG,"Unable to eglMakeCurrent");
+        KSLOGE(LOGTAG, "create - no display");
         return false;
     }
+    if(!eglInitialize(eglDisplay, nullptr, nullptr))//can pass variable to get the result opengl versions
+    {
+        KSLOGE(LOGTAG, "create - egl initialize failed");
+        return false;
+    }
+    if(!eglChooseConfig(eglDisplay, attribs, &config,1, &numConfigs)||numConfigs<=0)
+    {    //////TODO chose the first config
+        KSLOGE(LOGTAG, "eglChooseConfig failed ");
+        return false;
+
+    }
+    if (config == nullptr)
+    {
+        KSLOGE(LOGTAG, "Unable to initialize EGLConfig");
+        return false;
+    }
+
+    if((eglContext = eglCreateContext(eglDisplay, config, sharedContext->eglContext, context_attribs))==EGL_NO_CONTEXT)
+    {
+        KSLOGE(LOGTAG, "context creation failed");
+        return false;
+    }
+
+    const EGLint surfaceAttribs[]={EGL_WIDTH,bufferWidth,EGL_HEIGHT,bufferHeight,EGL_NONE};
+    eglSurface = eglCreatePbufferSurface(eglDisplay,config, surfaceAttribs);
+    if(eglSurface == EGL_NO_SURFACE)
+    {
+        KSLOGE(LOGTAG,"Error Creating PBuffer Surface");
+        return false;
+    }
+
+    eglQuerySurface(eglDisplay,eglSurface, EGL_WIDTH, &width);
+    eglQuerySurface(eglDisplay, eglSurface, EGL_HEIGHT, &height);
+
+    printInfo();
+
+    assert(width == bufferWidth && height == bufferHeight);
+
     return true;
+
 }
 
 void GLContext::printInfo()
@@ -182,7 +239,7 @@ GLenum GLContext::getError(const char *tag) {
 
 
 
-    //also print any egl errors
+    //also print any egl errors//TODO separate EGLError;
     EGLenum eglError=eglGetError();
     switch(eglError)
     {
@@ -216,3 +273,6 @@ GLenum GLContext::getError(const char *tag) {
     }
     return glError;
 }
+
+
+

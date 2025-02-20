@@ -16,7 +16,7 @@ public:
 
     ViewGroup();
 
-    ~ViewGroup() override;
+   virtual ~ViewGroup() override;
 
     virtual void addView(View * child);
 
@@ -40,6 +40,8 @@ public:
                      float gradientStrength) override;
 
     View* getViewContainingPoint(float x,float y);
+
+    void removeAllViews(){children.clear();}
 
 
 protected:

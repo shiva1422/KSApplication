@@ -8,7 +8,7 @@
 #include <Shader.h>
 #include "GLView.h"
 #include "Display.h"
-
+#include<vector>
 GLuint GLView::defaultVertexBufId=0;
 GLuint GLView::defaultIndexBufId=0;
 GLuint GLView::defaultUVBufId=0;
@@ -58,7 +58,6 @@ void GLView::setBounds(float width, float height) {
 void GLView::clearBackground()
 {
     glEnable(GL_SCISSOR_TEST);
-    glEnable(GL_BLEND);
     glScissor(startX,dispMetrics.screenHeight-startY-height,width,height);//if glScissor enable after this then scissor bounds should bes same as viewport bounds;
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -130,7 +129,6 @@ float GLView::getCenterYGL()const {
 
 bool GLView::initializeUI()
 {
-    //TODO improve anything fails return statusKo and assert;//INIT_ONCE >>>>>>
 
     GLuint bufferIds[3];
     glGenBuffers(3,bufferIds);
@@ -225,6 +223,23 @@ void GLView::setVertices(float *v) {
     }
 
 
+}
+
+std::vector<float> GLView::getScreenCoordVerts() {
+
+    std::vector<float> screenVerts(8);
+
+    screenVerts[0] = startX;
+    screenVerts[2] = startX+width;
+    screenVerts[4] = screenVerts[2];
+    screenVerts[6] = screenVerts[0];
+
+    screenVerts[1] = startY + height;
+    screenVerts[3] = vertices[1];
+    screenVerts[5] = startY;
+    screenVerts[7] = vertices[5];
+
+    return screenVerts;
 }
 
 

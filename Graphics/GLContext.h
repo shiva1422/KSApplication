@@ -21,7 +21,14 @@
 class GLContext {
 
 public:
+
+    GLContext(){};
+
+    ~GLContext();
+
     bool create();
+
+    bool createSharedOffScreenContext(const GLContext* sharedContext,int bufferWidth,int bufferHeight);
 
     bool setWindow(KSWindow &window);//surface
 
@@ -37,9 +44,7 @@ public:
 
     bool swapBuffers()
     {
-        //?err
-        eglSwapBuffers(eglDisplay,eglSurface);
-        return true;
+       return eglSwapBuffers(eglDisplay,eglSurface);
 
     }
 

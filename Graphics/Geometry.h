@@ -4,7 +4,7 @@
 //
 #ifndef KALASOFT_GEOMETRY_H
 #define KALASOFT_GEOMETRY_H
-
+#define KS_PI 3.141592653589793
 namespace ks
 {
     template<typename T> class Point2D{
@@ -42,6 +42,7 @@ namespace ks
 
     typedef Point2D<float> Point2DF;
     typedef Point3D<float> Point3DF;
+    typedef Point2D<int> Size2DI;
 
 
 }

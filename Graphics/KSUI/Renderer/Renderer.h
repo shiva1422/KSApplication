@@ -9,13 +9,16 @@
 #include <KSWindow.h>
 #include "Logger/KSLog.h"
 
+
 class Renderer {
 
 public:
 
     static void setDisplayMetrics(const DisplayMetrics displayMetrics);
 
-    void setContent(void *view)
+    static DisplayMetrics getDisplayMetrics();
+
+    virtual void setContent(void *view)
     {
         KSLOGD("renderer","set Content");
         this->content = view;

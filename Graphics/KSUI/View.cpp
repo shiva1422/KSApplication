@@ -105,6 +105,20 @@ void View::removeFromParent() {
 
 }
 
+View* View::getRootView()
+{
+    if(!parent)return this;
+    return parent->getRootView();
+}
+
+Renderer *View::getRenderer() {
+
+    View *root = getRootView();
+
+   return root != nullptr ? root->renderer : nullptr;//TODO should also acesseble in non rootViews(but should be set at the creation of View;
+
+}
+
 
 /*void View::onScreenRotation()
 {

@@ -28,13 +28,19 @@ public:
 
     void draw() override;
 
-    bool setImage(const char* path);
+    virtual bool setImage(const char* path);
 
-    bool setTextureImage(KSImage *image);
+    virtual bool setTextureImage(KSImage *image);
 
-    bool setGLTexture(const GLTexture* tex)
+    virtual  bool setGLTexture(const GLTexture* tex)
     {
         this->texture.tex = tex->tex;//TODO previous texture handle
+        return true;
+    }
+
+    virtual bool setTexture(const GLuint texId)
+    {
+        this->texture.tex = texId;
         return true;
     }
 

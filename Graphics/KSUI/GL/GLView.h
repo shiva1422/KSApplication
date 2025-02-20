@@ -34,6 +34,9 @@ public:
     //returns 4 vertices ,be careful size is 8 floats and a pointer
     float* getVertices(){return  vertices;}
 
+    //Temporary
+    std::vector<float> getScreenCoordVerts();
+
     float getStartXGL() const;
 
     float getStartYGL() const;

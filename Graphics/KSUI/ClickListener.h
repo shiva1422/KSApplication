@@ -19,6 +19,7 @@ protected:
     virtual bool onClick() = 0;
 
     virtual bool onClickDown(){return false ;}
+    virtual bool onClickCancel(){return false;}
 
 
 

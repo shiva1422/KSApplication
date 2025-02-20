@@ -4,9 +4,16 @@
 
 #include <KSUI/View.h>
 #include "Renderer.h"
+
 void Renderer::setDisplayMetrics(const DisplayMetrics displayMetrics) {
 
     View::dispMetrics = displayMetrics;
     //KSLOGD("Renderer", "DisplayMetrics set");
     displayMetrics.print();
+}
+
+DisplayMetrics Renderer::getDisplayMetrics() {
+
+    return View::dispMetrics;
+
 }
