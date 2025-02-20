@@ -15,6 +15,7 @@ KSAssetReader::KSAssetReader(AAsset *asset) {
 
 KSAssetReader::~KSAssetReader() {
 
+    if(asset != nullptr)
     AAsset_close(asset);
 }
 
@@ -29,6 +30,7 @@ off_t KSAssetReader::seek(off_t offset, int whence)
 
 int KSAssetReader::close() {
      AAsset_close(asset);
+     asset = nullptr;
     return 0;
 }
 

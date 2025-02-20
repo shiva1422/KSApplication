@@ -16,6 +16,9 @@
 #include "KSApp/IO/KSAssetReader.h"
 #include "android/log.h"
 #include <Shader.h>
+#include <KSIO/FileManager.h>
+#include <vector>
+
 #define APPTAG  "KSApplication"
 #define AppLogV(x) KSLOGV(APPTAG,x)
 
@@ -31,12 +34,14 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     app->onInputEvent = AndroidEvents::onInputEvent;
     app->userData = this;
     mAssetManager = this;
+    fileManager = this;
+
 
     AppJavaCalls::init(app);
     if(bUseGL)
     {
-        renderer = new GLUIRenderer();
-        ((GLUIRenderer *)renderer)->enableBlending();
+        renderer = new GLRenderer();
+        ((GLRenderer *)renderer)->enableBlending();
     }
 
     else
@@ -308,6 +313,76 @@ void KSApplication::setMotionEventInterceptor(ks::MotionEventInterceptor *i) {
     AndroidEvents::setMotionEventInterceptor(i);
 }
 
+const std::string KSApplication::_getExternalStoragePath() const {
+    return app->activity->externalDataPath;
+}
+
+const std::string KSApplication::_getInternalStoragePath() const {
+    return app->activity->internalDataPath;
+}
+
+const std::string KSApplication::_getOBBPath() const {
+    return app->activity->obbPath;
+}
+
+void KSApplication::getFileListInDir(const char *directory,std::vector<std::pair<std::string, std::string>> &filePaths) {
+
+    AAssetDir* dir = AAssetManager_openDir(getAssetManager(),directory);
+    const char* fileName;
+    if(dir != nullptr)
+    {
+        while((fileName = AAssetDir_getNextFileName(dir)) != nullptr)
+        {
+            filePaths.push_back({fileName,""});
+        }
+
+        AAssetDir_close(dir);
+    }else
+    {
+        KSLOGE(appName.c_str(),"Coundn't open Asset Dir");
+    }
+
+}
+
+bool KSApplication::_copyAssetDirToDevice(const char *assetDir, const char *destination) {
+
+    AAssetDir* dir = AAssetManager_openDir(getAssetManager(),assetDir);
+    const char* fileName;
+    if(dir != nullptr)
+    {
+        while((fileName = AAssetDir_getNextFileName(dir)) != nullptr)
+        {
+            std::string folderFile = std::string(destination) + "/" + fileName;
+            std::string assetPath = std::string(assetDir) + "/" + fileName;
+
+            KSLOGD(appName.c_str(),"Copying assets dir %s to internal storage %s, path %s to path %s",assetDir,destination,folderFile.c_str(),assetPath.c_str());
+
+            KSAssetReader *reader = dynamic_cast<KSAssetReader *>(openAsset(assetPath.c_str()));
+            if(reader == nullptr)return false;//TODO only falure skip and continue with others;
+
+            FDStream fdStream;
+            fdStream.open(folderFile.c_str(),0777);
+
+            int BUFSIZE = 1024;
+            uint8_t buffer[BUFSIZ];
+            int readSize = 0;
+
+            do{
+                readSize = reader->read(buffer,BUFSIZE);
+                fdStream.write(buffer,readSize);
+            }while(readSize == BUFSIZE);
+            reader->close();
+            delete reader;
+
+        }
+
+    }else
+    {
+        KSLOGD(appName.c_str(),"Open AssetDir failed %s",assetDir);
+    }
+    return true;
+}
 
 AssetManager* AssetManager::mAssetManager = nullptr;
+FileManager* FileManager::fileManager = nullptr;
 

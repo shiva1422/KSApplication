@@ -18,10 +18,17 @@ void AppUtils::openPrivacyPolicy() {
 
 void AppUtils::showBanner() {
 
- //  AppJavaCalls::showBannerAd();
+  AppJavaCalls::showBannerAd();
 }
 
 void AppUtils::dismissBanner() {
 
-   // AppJavaCalls::dismissBannerAd();
+   AppJavaCalls::dismissBannerAd();
 }
+
+
+
+
+
+
+

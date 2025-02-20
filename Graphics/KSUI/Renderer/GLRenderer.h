@@ -2,18 +2,18 @@
 // Created by kalasoft on 12/23/21.
 //
 
-#ifndef KALASOFT_GLUIRENDERER_H
-#define KALASOFT_GLUIRENDERER_H
+#ifndef KALASOFT_GLRENDERER_H
+#define KALASOFT_GLRENDERER_H
 
 
 #include <Graphics/GLContext.h>
 #include "Renderer.h"
 
-class GLUIRenderer : public Renderer {
+class GLRenderer : public Renderer {
     //TODO Make GLUIRenderer separete and this to GLUIRenderer//store thread id of this context;
 
-
 public:
+
 
     bool setSurfaceWindow(KSWindow &window);
 
@@ -33,17 +33,26 @@ public:
 
     void disableBlending();
 
+
+    bool initOffScreenShared(GLRenderer *sharedRenderer, int width, int Height);
+
+    virtual bool init() override;
+
+    GLContext* getGLContext(){return  &glContext;}
+
 public:
 
     GLuint texProg = 0;
+
+    void setContent(void *view) override;
+
+
 
 protected:
 
     GLContext  glContext;
 
 protected:
-
-    virtual bool init() override;
 
     virtual bool onRender() override;
 
@@ -52,4 +61,4 @@ protected:
 };
 
 
-#endif //KALASOFT_GLUIRENDERER_H
+#endif //KALASOFT_GLRENDERER_H

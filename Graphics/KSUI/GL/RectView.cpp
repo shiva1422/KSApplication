@@ -16,8 +16,6 @@ void RectView::draw() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,GLView::defaultIndexBufId);
     glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_SHORT, nullptr);
 
-    GLContext::getError("RectView");
-    KSLOGD("RectView  : ", " %d %d %d",Shader::getRectProgram(),Shader::getRectVertsLocation(),Shader::getRectColorLocation());
     glDisableVertexAttribArray(Shader::getRectVertsLocation());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
 

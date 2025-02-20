@@ -7,13 +7,18 @@ set(UI_SRCS
         GL/GLView.cpp
         GL/GLImageView.cpp
         GL/RectView.cpp
+        GL/GLSliderView.cpp
+        GL/HSIImageView.cpp
         Renderer/Renderer.cpp
-        Renderer/GLUIRenderer.cpp
+        Renderer/GLRenderer.cpp
+        Renderer/GLUIOffScreenRenderer.cpp
         ClickListener.cpp
         )
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/.. ./ksgraphics)
 
-add_library(ksui STATIC ${UI_SRCS})
+add_subdirectory(Text ./kstextlib)
 
-target_link_libraries(ksui ksgraphics)
+add_library(ksui  STATIC ${UI_SRCS})
+
+target_link_libraries(ksui ksgraphics kstextlib)

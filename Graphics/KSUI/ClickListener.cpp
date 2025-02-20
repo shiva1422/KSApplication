@@ -45,7 +45,8 @@ bool ClickListener::onTouchUp(const float &x, const float &y, const ks::TouchID 
             onClick();
             KSLOGD("KSEVENT", "ClickUp");
 
-        }
+        }else
+            onClickCancel();
         clickPointers.erase(id);
     }else
     {

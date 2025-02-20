@@ -8,11 +8,12 @@
 #include <android_native_app_glue.h>
 #include <Graphics/GLContext.h>
 #include <Graphics/Display.h>
-#include <Graphics/KSUI/Renderer/GLUIRenderer.h>
+#include <Graphics/KSUI/Renderer/GLRenderer.h>
 #include <KSIO/IKSStream.h>
 #include <Graphics/KSUI/Renderer/Renderer.h>
 #include <KSIO/AssetManager.h>
 #include <string>
+#include <KSIO/FileManager.h>
 #include "Events/MotionEvent.h"
 #include "Events/KeyEvent.h"
 
@@ -25,7 +26,7 @@ class View;
 class AndroidEvents;
 class CustomEvents;
 
-class KSApplication : public AssetManager , public ks::MotionEventInterceptor, public ks::KeyEventInterceptor{
+class KSApplication : public AssetManager , public ks::MotionEventInterceptor, public ks::KeyEventInterceptor, public FileManager{
 
 public:
 
@@ -34,7 +35,7 @@ public:
     //TODO make paap as opaque for different platforms
     KSApplication(android_app *papp,std::string name = "KSApplication") ;
 
-    ~KSApplication();
+    virtual  ~KSApplication();
     //friends
     friend AndroidEvents;
 
@@ -70,7 +71,16 @@ public:
 
     bool onInterceptKeyEvent(const ks::KeyEvent &ke) override;
 
+    const std::string _getExternalStoragePath() const override;
 
+    const std::string _getInternalStoragePath() const override;
+
+    const std::string _getOBBPath() const override;
+
+protected:
+
+    void getFileListInDir(const char *directory,
+                          std::vector<std::pair<std::string, std::string>> &filePaths) override;
 
 protected:
     //lifeCycle and Events
@@ -139,6 +149,7 @@ protected:
 
     KSImage* _loadImageAsset(const char *path) override;
 
+    bool _copyAssetDirToDevice(const char *assetDir, const char *destination) override;
 
 
 protected:

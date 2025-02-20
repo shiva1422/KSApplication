@@ -39,11 +39,18 @@ bool GLTexture::setTextureImage(KSImage *image)
         bCreated = false;//the previous texture is still hold true
         return bCreated;
     }
-    if(glIsTexture(tex) && ( image->width != width || image->height != height))//TODO format
-        glDeleteTextures(1,&tex);
     else
     {
-        width = image->width; height = image->height;
+
+        if(( image->width != width || image->height != height))
+        {
+            KSLOGD(TAGLOG,"Deleting texture");
+            if(glIsTexture(tex))
+            glDeleteTextures(1,&tex);
+            tex = 0;
+            width = image->width,height = image->height;
+        }
+        if(tex == 0)
         glGenTextures(1,&tex);
         glBindTexture(GL_TEXTURE_2D,tex);
         //TODO.GL_NEAREST is faster
@@ -54,14 +61,12 @@ bool GLTexture::setTextureImage(KSImage *image)
         glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
         glBindTexture(GL_TEXTURE_2D,tex);
-        bCreated = true;
     }
 
     glBindTexture(GL_TEXTURE_2D,tex);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
     glBindTexture(GL_TEXTURE_2D,0);
-    //delete image; TODO memory leak
+    //delete image; TODO memory leak,Caller/This should coordinate;
     return bCreated;
-    return false;
 }
 

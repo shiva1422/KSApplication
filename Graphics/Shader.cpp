@@ -157,11 +157,14 @@ GLuint Shader::createProgram(IKSStream *vertStr, IKSStream *fragStr)
 }
 
 
+//TODO move the above to approriate,Renderer,View,Construtors;(instance Count,SingleTons)
 GLuint Shader::baseProg = 0;
 GLuint Shader::rectProg = 0;
 GLuint Shader::texProg = 0;
-GLuint Shader::alphaBlock;
+GLuint Shader::alphaBlock = 0;
+GLuint Shader::mvpTextureProgram = 0;
 
+//all should default to -1;
 GLint  Shader::textureVertsLocation = 0;
 GLint  Shader::textureCoordsLocation = 0;
 GLint  Shader::rectVertsLocation = 0;
@@ -170,16 +173,25 @@ GLint  Shader::alphaBlockVertsLocation = 0;
 GLint  Shader::alphaBlockTextCoordsLocation = 0;
 GLint Shader::alphaBlockLocation = 0;
 
+
+GLint Shader::mvpTextureVertsLocation = 0;
+GLint Shader::mvpTextureCoordLocation = 0;
+GLint Shader::mvpModelLocation = 0;
+GLint Shader::mvpProjectionLocation = 0;
+GLint Shader::mvpViewLocation = 0;
+
+
 /**
  *TODO handle failures aptly.
  *TODO add  locations inside the shaders manually.
  */
 bool Shader::prepareShaders(AssetManager *assetManager)
 {
-    if(assetManager != nullptr)
+    //std::string shaderPath = "shaders/pianoShaders/";
+    if(assetManager != nullptr)//TODO directly use assetManager SingleTon
     {
-        IKSStream *vertA = assetManager->openAsset("shaders/texture.vert");
-        IKSStream *fragA = assetManager->openAsset("shaders/texture.frag");
+        IKSStream *vertA = assetManager->openAsset("shaders/pianoShaders/texture.vert");
+        IKSStream *fragA = assetManager->openAsset("shaders/pianoShaders/texture.frag");
         assert(vertA && fragA);
         texProg = Shader::createProgram(vertA,fragA);
         if(texProg == 0)
@@ -190,8 +202,8 @@ bool Shader::prepareShaders(AssetManager *assetManager)
         textureVertsLocation  = glGetAttribLocation(texProg, "verts");
         textureCoordsLocation  = glGetAttribLocation(texProg,"textureCoords");
 
-        vertA = assetManager->openAsset("shaders/rect.vert");
-        fragA = assetManager->openAsset("shaders/rect.frag");
+        vertA = assetManager->openAsset("shaders/pianoShaders/rect.vert");
+        fragA = assetManager->openAsset("shaders/pianoShaders/rect.frag");
         assert(vertA && fragA);
         rectProg = Shader::createProgram(vertA,fragA);
         if(rectProg == 0)
@@ -202,8 +214,8 @@ bool Shader::prepareShaders(AssetManager *assetManager)
         rectVertsLocation  = glGetAttribLocation(rectProg, "verts");
         rectColorLocation  = glGetUniformLocation(rectProg,"color");
 
-        vertA = assetManager->openAsset("shaders/alphablock.vert");
-        fragA = assetManager->openAsset("shaders/alphablock.frag");
+        vertA = assetManager->openAsset("shaders/pianoShaders/alphablock.vert");
+        fragA = assetManager->openAsset("shaders/pianoShaders/alphablock.frag");
         assert(vertA && fragA);
         alphaBlock = Shader::createProgram(vertA,fragA);
         if(alphaBlock == 0)
@@ -215,6 +227,95 @@ bool Shader::prepareShaders(AssetManager *assetManager)
         alphaBlockTextCoordsLocation  = glGetAttribLocation(alphaBlock,"textureCoords");
         alphaBlockLocation = glGetUniformLocation(alphaBlock,"blockParams");
 
+        vertA = assetManager->openAsset("shaders/pianoShaders/mvptexture.vert");
+        fragA = assetManager->openAsset("shaders/pianoShaders/mvptexture.frag");
+        assert(vertA && fragA);
+        mvpTextureProgram = Shader::createProgram(vertA,fragA);
+        if(mvpTextureProgram == 0)
+        {
+            KSLOGE("prepareShaders", "error compiling mvpTexture shader");
+            return false;
+        }
+
+        mvpTextureVertsLocation = glGetAttribLocation(mvpTextureProgram,"verts");
+        mvpTextureCoordLocation = glGetAttribLocation(mvpTextureProgram,"textureCoords");
+        mvpModelLocation = glGetUniformLocation(mvpTextureProgram, "model");
+        mvpProjectionLocation = glGetUniformLocation(mvpTextureProgram, "proj");
+        mvpViewLocation = glGetUniformLocation(mvpTextureProgram, "view");
+
+
+
     }
     return true;
+}
+
+
+GLuint Shader::createComputeProgram(const char *shaderPath)
+{
+    IKSStream *comStre = AssetManager::openAsset(shaderPath);
+    if(!comStre)return 0;
+    long fSize = comStre->getSize();
+
+    char *comSrc = static_cast<char *>(malloc(fSize + 1));
+    GLuint  computeShader = 0;
+    if(comSrc)
+    {
+        int sRead = 0;
+        sRead = comStre->read(comSrc,fSize);
+
+        if(sRead == fSize)
+        {
+            comSrc[fSize] = '\0';
+            KSLOGD("Compute Shader :", "Fragment \n %s",comSrc);
+
+
+        }
+        else
+        {
+            KSLOGE("Shader :","read to buf error");
+            free(comSrc);
+            return 0;
+        }
+
+        computeShader = compile(GL_COMPUTE_SHADER,comSrc);
+        free(comSrc);
+    }
+
+    GLuint program= glCreateProgram();
+    if(computeShader && program)
+    {
+
+        glAttachShader(program,computeShader);
+        glLinkProgram(program);
+        GLint linkStatus=GL_FALSE;
+        glGetProgramiv(program,GL_LINK_STATUS,&linkStatus);
+        if(linkStatus!=GL_TRUE)
+        {
+            GLint buflen=0;
+            glGetProgramiv(program,GL_INFO_LOG_LENGTH,&buflen);
+            if(buflen)
+            {
+                char* buf= (char *)malloc(buflen);
+                if(buf)
+                {
+                    glGetProgramInfoLog(program,buflen,NULL,buf);
+                    KSLOGE(LOGTAG,"could not link the  Compute program reason : %s",buf);
+                    free(buf);
+                }
+            }
+            glDeleteProgram(program);
+            program=0;
+        }
+        else
+        {
+            KSLOGD(LOGTAG,"ComputeShader Linked Succesfully");
+            return program;
+
+        }
+    }
+    else
+    {
+        KSLOGE(LOGTAG,"Couldnot create compute progam");
+    }
+    return program;
 }

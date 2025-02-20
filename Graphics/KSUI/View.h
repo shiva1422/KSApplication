@@ -8,8 +8,12 @@
 #include "Logger/KSLog.h"
 #include "KSApp/Events/MotionEvent.h"
 #include "unordered_set"
+#include "Renderer/Renderer.h"
 
 //TODO DISPLAYMETRIC NO NEED DECIDE ACTUAL PARAMS BEFORE SETTING BOUNDS TO VIEW
+//TODO Merge ViewGroup into this.
+
+
     class DisplayMetrics;
     class ClickListener;
     class View {
@@ -99,7 +103,6 @@
 
         /**
          * @brief check if point (x,y) lies withing the bounds of this view
-
          */
         bool isPointInside(float x,float y) const
         {
@@ -123,6 +126,8 @@
         View* getParent(){return this->parent;}
 
         void removeFromParent();
+
+        View* getRootView();
 
 
         //TOUCH
@@ -210,6 +215,10 @@
             return (view->touchListener && view->touchListener->isHandlingTouch(id));
         }
 
+        Renderer* getRenderer();
+
+        void setRenderer(Renderer *prenderer){this->renderer = prenderer;}
+
 
 
         //virtual void onScreenRotation();
@@ -226,6 +235,8 @@
         View *child = nullptr;
 
         static DisplayMetrics dispMetrics;
+
+        Renderer *renderer = nullptr;
 
         float startX = 0,startY = 0,width = 50,height = 50;
 
