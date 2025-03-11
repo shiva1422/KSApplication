@@ -16,6 +16,10 @@
 #include <KSIO/FileManager.h>
 #include "Events/MotionEvent.h"
 #include "Events/KeyEvent.h"
+#include <vector>
+#include <KSApp/Events/KeyEvent.h>
+
+
 
 /*
  * TODO
@@ -76,6 +80,11 @@ public:
     const std::string _getInternalStoragePath() const override;
 
     const std::string _getOBBPath() const override;
+
+    void addKeyboardListener(KeyEventInterceptor *l) override;
+
+    void removeKeyboardListener(KeyEventInterceptor *l) override;
+
 
 protected:
 
@@ -193,6 +202,11 @@ private:
 
     std::chrono::time_point<std::chrono::system_clock> frameClock;
     std::chrono::time_point<std::chrono::system_clock> previousFrameClock;
+
+
+private:
+
+    std::vector<ks::KeyEventInterceptor *> keyboardListeners;
 
 
 

@@ -32,6 +32,8 @@ public:
 
     static void dismissBannerAd();
 
+    static bool toggleKeyboard();
+
 
     static KSImage* loadImageAsset(const char* path);
 

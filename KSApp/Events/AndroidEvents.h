@@ -19,7 +19,11 @@ public:
 
     static void setMotionEventInterceptor(ks::MotionEventInterceptor *listener){ motionListener = listener;}
 
-    static void setKeyEventInterceptor(ks::KeyEventInterceptor *listener){keyEventInterceptor = listener;}
+    static void setKeyEventInterceptor(ks::KeyEventInterceptor *listener)
+    {
+        keyEventInterceptor = listener;
+        ks::KeyEventInterceptor::mainInterceptor = listener;
+    }
 
 private:
 

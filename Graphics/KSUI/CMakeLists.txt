@@ -9,6 +9,7 @@ set(UI_SRCS
         GL/RectView.cpp
         GL/GLSliderView.cpp
         GL/HSIImageView.cpp
+        GL/GLLineView.cpp
         Renderer/Renderer.cpp
         Renderer/GLRenderer.cpp
         Renderer/GLUIOffScreenRenderer.cpp

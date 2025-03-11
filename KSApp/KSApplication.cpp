@@ -15,6 +15,7 @@
 #include "Events/CustomEvents.h"
 #include "KSApp/IO/KSAssetReader.h"
 #include "android/log.h"
+#include "AppUtils.h"
 #include <Shader.h>
 #include <KSIO/FileManager.h>
 #include <vector>
@@ -290,9 +291,57 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
 }
 
 bool KSApplication::onInterceptKeyEvent(const KeyEvent &ke) {
+    if(ke.getKeyAction() == EKeyAction::KEY_DOWN)
+    {
+
+        if(ke.getKeyCode() == EKeyCode::KS_KEY_CODE_SHIFT_LEFT)
+        {
+            bIsCapsOn = true;
+        }
+
+        for(auto l : keyboardListeners)
+        {
+            if(l)l->onInterceptKeyEvent(ke);
+        }
+    }else if(ke.getKeyAction() == EKeyAction::KEY_UP)
+    {
+        if(ke.getKeyCode() == EKeyCode::KS_KEY_CODE_SHIFT_LEFT)
+        {
+            bIsCapsOn = false;
+        }
+    }
+
     return false;
 }
 
+
+void KSApplication::addKeyboardListener(ks::KeyEventInterceptor *l) {
+    for(auto k : keyboardListeners)
+    {
+        if(k ==l)
+        {
+            KSLOGD(appName.c_str(),"Keyboard Listener already exist %p",l);
+            return;
+        }
+    }
+    keyboardListeners.push_back(l);
+
+}
+
+void KSApplication::removeKeyboardListener(ks::KeyEventInterceptor *l) {
+
+   for(auto iter = keyboardListeners.begin(); iter != keyboardListeners.end();iter++)
+   {
+       if(*iter == l)
+       {
+           keyboardListeners.erase(iter);
+           return;
+       }
+   }
+
+    KSLOGW(appName.c_str(),"cannot remove keyboardListener doesn't exist %p",l);
+
+}
 
 
 //Static Memebers
@@ -385,4 +434,24 @@ bool KSApplication::_copyAssetDirToDevice(const char *assetDir, const char *dest
 
 AssetManager* AssetManager::mAssetManager = nullptr;
 FileManager* FileManager::fileManager = nullptr;
+bool  KeyboardController::bKeyboardOpen = false;
+bool KeyboardController::closeKeyboard() {
 
+    if(bKeyboardOpen)
+    {
+        AppUtils::toggleKeyboardOpen();//TODO
+        bKeyboardOpen = false;
+    }
+
+    return false;
+}
+
+bool KeyboardController::openKeyboard() {
+    if(!bKeyboardOpen)
+    {
+        AppUtils::toggleKeyboardOpen();//TODO make sure the keyboard is on;
+        bKeyboardOpen = true;
+    }
+
+    return false;
+}

@@ -13,7 +13,7 @@ set(GRAPHICS_SRCS
 
 add_library(ksgraphics STATIC ${GRAPHICS_SRCS})
 
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../Media/KSImage ./ksimage)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../Core/Media/KSImage ./ksimage)
 
 
 #add_subdirectory(Vulkan ./ksvulkan)

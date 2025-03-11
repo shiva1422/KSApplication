@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.31.0)
 
 add_library(kstextlib STATIC Text.cpp TextView.cpp)
 
-set(FREETYPE /Users/shivaaz/Projects/kalasoft/external/ft/mac/ft)
+set(FREETYPE /Users/kalasoft/projects/production/kalasoft/external/ft/mac/ft)
 
 include_directories(${FREETYPE}/include)
 add_library(ft2 STATIC IMPORTED)

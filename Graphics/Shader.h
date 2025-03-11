@@ -34,6 +34,8 @@ public:
 
     static GLuint createComputeProgram(const char *shaderPath);
 
+    static GLuint createTransformFeedbackProgram(const char* vertexPath,const char* fragmentPath,const char* varyings[],int varyingCount);
+
 public:
 
     static bool prepareShaders(AssetManager *assetManager);

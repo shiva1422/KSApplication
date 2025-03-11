@@ -23,6 +23,7 @@ int32_t AndroidEvents::onInputEvent(android_app* papp, AInputEvent* event)
     }
     else if(eventWrap.getEventType() == ks::EInputEventType::KEY)
     {
+        KSLOGD(TAGLOG,"KeyEvent");
         return keyEventInterceptor->onInterceptKeyEvent(event);
     }
     else if(eventWrap.getEventType() == ks::EInputEventType::FOCUS)
@@ -123,3 +124,5 @@ void AndroidEvents::onAppCmd(android_app* app, int32_t cmd)
 
 ks::MotionEventInterceptor *AndroidEvents::motionListener = nullptr;//KSApplication
 ks::KeyEventInterceptor *AndroidEvents::keyEventInterceptor = nullptr;//KSApplication;
+ks::KeyEventInterceptor *ks::KeyEventInterceptor::mainInterceptor = nullptr;
+bool ks::KeyEventInterceptor::bIsCapsOn = false;

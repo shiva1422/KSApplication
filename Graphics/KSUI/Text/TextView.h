@@ -38,6 +38,8 @@ public:
 
     std::string getText(){return text;}
 
+    void setFontSize(uint size);
+
 
 
 private:

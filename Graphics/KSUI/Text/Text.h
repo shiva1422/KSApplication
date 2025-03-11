@@ -8,10 +8,10 @@
 #include <Display.h>
 #include <string>
 #include <CMedia/KSImage.h>
-#include "ft2build.h"
-#include "freetype/freetype.h"
-#include "freetype/ftglyph.h"
-#include "android/log.h"
+#include <ft2build.h>
+#include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
+#include <android/log.h>
 #include "Commons.h"
 
 //TODO REfactor whole thing also include Kerning
@@ -50,6 +50,8 @@ public:
     void setDisplayMetrics(const DisplayMetrics &displayMetrics){displayParams = displayMetrics;}
 
     KSImage *getImageFromText(const std::string &pString);
+
+    uint getFontSize(){return fontWidth;}
 
 private:
 

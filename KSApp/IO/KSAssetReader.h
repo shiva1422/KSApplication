@@ -10,7 +10,7 @@
 
 #include <KSIO/IKSStream.h>
 #include <cstdio>
-#include <android_native_app_glue.h>
+#include <android/asset_manager.h>
 
 //only for android app
 class AssetManager;

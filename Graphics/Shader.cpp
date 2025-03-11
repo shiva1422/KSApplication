@@ -187,11 +187,11 @@ GLint Shader::mvpViewLocation = 0;
  */
 bool Shader::prepareShaders(AssetManager *assetManager)
 {
-    //std::string shaderPath = "shaders/pianoShaders/";
+    //std::string shaderPath = "shaders/pianoShaders/";//TODO close resources
     if(assetManager != nullptr)//TODO directly use assetManager SingleTon
     {
-        IKSStream *vertA = assetManager->openAsset("shaders/pianoShaders/texture.vert");
-        IKSStream *fragA = assetManager->openAsset("shaders/pianoShaders/texture.frag");
+        IKSStream *vertA = AssetManager::openAsset("shaders/pianoShaders/texture.vert");
+        IKSStream *fragA = AssetManager::openAsset("shaders/pianoShaders/texture.frag");
         assert(vertA && fragA);
         texProg = Shader::createProgram(vertA,fragA);
         if(texProg == 0)
@@ -316,6 +316,65 @@ GLuint Shader::createComputeProgram(const char *shaderPath)
     else
     {
         KSLOGE(LOGTAG,"Couldnot create compute progam");
+    }
+    return program;
+}
+
+//TODO reduce the function/reuse with others;//get source from file directly for each file
+GLuint Shader::createTransformFeedbackProgram(const char *vertexPath, const char *fragmentPath,const char **varyings,int varyingCount)
+{
+
+    GLuint program = 0;
+    IKSStream *vert = AssetManager::openAsset(vertexPath);
+    IKSStream *frag = AssetManager::openAsset(fragmentPath);
+    if(vert && frag)
+    {
+        char *v = nullptr,*f = nullptr;
+        long vSize = vert->getSize() ;
+        long fSize = frag->getSize();
+
+        v = static_cast<char *>(malloc(vSize + 1));
+        f = static_cast<char *>(malloc(fSize + 1));
+
+        if(v && f)
+        {
+            int vRead = 0,fRead = 0;
+            vRead = vert->read(v,vSize);
+            fRead =frag->read(f,fSize);
+
+            if(vRead == vSize && fRead == fSize)
+            {
+                v[vSize] = '\0';
+                f[fSize] = '\0';
+                KSLOGD("Shader : ","Vertex \n : %s",v);
+                KSLOGD("Shader :", "Fragment \n %s",f);
+
+            }
+            else
+            {
+                KSLOGE("Shader :","read to buf error");
+                return 0;
+            }
+            GLuint vs = compile(GL_VERTEX_SHADER,v);
+            GLuint fs = compile(GL_FRAGMENT_SHADER,f);
+
+            program=glCreateProgram();
+            glAttachShader(program,vs);
+            glAttachShader(program,fs);
+            if(varyingCount > 0)
+            glTransformFeedbackVaryings(program,varyingCount,varyings,GL_INTERLEAVED_ATTRIBS);
+            glLinkProgram(program);
+
+        }
+
+
+        if(v)
+            free(v);
+        if(f)
+            free(f);
+    }else
+    {
+        KSLOGE(LOGTAG,"FeedbackProgram create error");
     }
     return program;
 }

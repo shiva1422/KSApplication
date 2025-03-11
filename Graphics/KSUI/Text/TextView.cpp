@@ -4,6 +4,8 @@
 
 #include <assert.h>
 #include "TextView.h"
+#include "TextView.h"
+
 
 
 //Keep a shared texture map 2dTextureArray for characters used
@@ -68,6 +70,11 @@ void TextView::setText(const std::string &t) {
             delete textImage;
         }
 
+
+        if(TextEngine::getInstance()->getFontSize() != fontSize)
+        {
+            TextEngine::getInstance()->setTextSize(fontSize,fontSize);
+        }
         textImage = TextEngine::getInstance()->getImageFromText(text);
 
         if(textImage == nullptr)
@@ -83,6 +90,12 @@ void TextView::setText(const std::string &t) {
 
     }
 
+
+}
+
+void TextView::setFontSize(const uint fontSize) {
+
+    this->fontSize = fontSize;
 
 }
 

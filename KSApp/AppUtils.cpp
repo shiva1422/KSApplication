@@ -26,6 +26,11 @@ void AppUtils::dismissBanner() {
    AppJavaCalls::dismissBannerAd();
 }
 
+bool AppUtils::toggleKeyboardOpen() {
+    AppJavaCalls::toggleKeyboard();
+    return true;
+}
+
 
 
 

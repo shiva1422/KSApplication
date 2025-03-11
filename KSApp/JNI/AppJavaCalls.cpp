@@ -159,7 +159,7 @@ void AppJavaCalls::openPrivacyPolicy() {
         jmethodID mid = env->GetMethodID(cls, "openPrivacyPolicy", "()V");
         if (mid == 0)
         {
-            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            KSLOGE(TAGJNI,"error obtaining the method id get openPrivacy Policy");
             //detachThread();
             return ;
         }
@@ -176,7 +176,7 @@ void AppJavaCalls::showBannerAd() {
         jmethodID mid = env->GetMethodID(cls, "showBannerAd", "()V");
         if (mid == 0)
         {
-            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            KSLOGE(TAGJNI,"error obtaining the method id get showBannerAd");
             //detachThread();
             return ;
         }
@@ -194,7 +194,7 @@ void AppJavaCalls::dismissBannerAd() {
         jmethodID mid = env->GetMethodID(cls, "dismissBannerAd", "()V");
         if (mid == 0)
         {
-            KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
+            KSLOGE(TAGJNI,"error obtaining the method id dismissBannerAd");
             //detachThread();
             return ;
         }
@@ -203,4 +203,25 @@ void AppJavaCalls::dismissBannerAd() {
 
     detachThread();
 
+}
+
+bool AppJavaCalls::toggleKeyboard() {
+
+    JNIEnv *jni;
+    app->activity->vm->AttachCurrentThread( &jni, NULL );
+
+    jclass cls = jni->GetObjectClass(app->activity->clazz);
+    jmethodID methodID = jni->GetMethodID(cls, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;" );
+    jstring service_name = jni->NewStringUTF("input_method");
+    jobject input_service = jni->CallObjectMethod(app->activity->clazz, methodID, service_name);
+
+    jclass input_service_cls = jni->GetObjectClass(input_service);
+    methodID = jni->GetMethodID(input_service_cls, "toggleSoftInput", "(II)V");
+    jni->CallVoidMethod(input_service, methodID, 0, 0);
+
+    jni->DeleteLocalRef(service_name);
+
+    app->activity->vm->DetachCurrentThread();
+
+    return true;
 }

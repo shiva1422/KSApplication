@@ -18,6 +18,8 @@ public:
 
     static void dismissBanner();
 
+    static bool toggleKeyboardOpen();
+
 };
 
 

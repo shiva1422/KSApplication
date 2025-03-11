@@ -16,8 +16,6 @@ public:
 
     void clearBackground() override;
 
-    void setBounds(float startX, float startY, float width, float height) override;
-
     void setBounds(float width, float height) override;
 
     void setBoundsGL(float glsx,float glsy,float glWidth,float glHeight);
@@ -55,6 +53,8 @@ public:
 
     void printBounds(const char* tag);
 
+
+    void setBounds(float startX, float startY, float width, float height) override;
 
 protected:
 
