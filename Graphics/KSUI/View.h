@@ -74,6 +74,8 @@
 
         virtual void setBounds(float width, float height);
 
+        virtual void setBoundsWithCentre(float centreX,float centreY,float width,float height);
+
 
         virtual void setXY(int x,int y){setBounds(x,y,width,height);}
 

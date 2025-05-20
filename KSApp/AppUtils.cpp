@@ -31,6 +31,14 @@ bool AppUtils::toggleKeyboardOpen() {
     return true;
 }
 
+void AppUtils::onApplicationCreated(long appHandle) {
+
+
+    AppJavaCalls::onApplicationCreated(appHandle);
+}
+
+
+
 
 
 

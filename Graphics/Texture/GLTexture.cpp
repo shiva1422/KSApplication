@@ -70,3 +70,10 @@ bool GLTexture::setTextureImage(KSImage *image)
     return bCreated;
 }
 
+bool GLTexture::setImageFromFile(const char *path) {
+
+    KSImage *image = KSImageLoader::loadFromFile(path);
+
+    return setTextureImage(image);
+}
+

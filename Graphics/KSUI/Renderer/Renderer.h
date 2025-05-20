@@ -10,9 +10,24 @@
 #include "Logger/KSLog.h"
 
 
+class RenderContext{
+
+public:
+
+
+    //Size of the viewport/screen/FrameBuffer
+    ks::Size<int> size;
+
+
+
+};
+
+
 class Renderer {
 
 public:
+
+    virtual ~Renderer(){};
 
     static void setDisplayMetrics(const DisplayMetrics displayMetrics);
 

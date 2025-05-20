@@ -39,10 +39,14 @@ public:
 public:
 
     static bool prepareShaders(AssetManager *assetManager);
+
+    static void clearShaders();
+
     static GLuint getTextureProgram(){return texProg;}
     static GLuint getRectProgram(){return rectProg;}
     static GLuint getAlphaBlockProgram(){return alphaBlock;}
     static GLuint getMVPTextureProgram(){return mvpTextureProgram;}
+    static GLuint getBlendProgram(){return  blendProgram;}
 
 
     static GLint  getTextureVertsLocation(){return textureVertsLocation;}//Move these to apporiate texture files
@@ -64,11 +68,13 @@ public:
 
 
 private:
+
     static GLuint baseProg;
     static GLuint rectProg;
     static GLuint texProg;
     static GLuint alphaBlock;
     static GLuint mvpTextureProgram;
+    static GLuint blendProgram;
 
 
     static GLint textureVertsLocation;

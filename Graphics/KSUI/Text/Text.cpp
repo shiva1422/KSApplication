@@ -9,6 +9,11 @@
 //TODO REFACTOR
 
 TextEngine *TextEngine::textEngine;
+
+const char* TextEngine::defaultFont="/system/fonts/DroidSans.ttf";
+const int TextEngine::defaultFontSize = 32;
+
+
 void TextEngine::getPixamapFromString(const std::string &pString, PixaMap *pixaMap)
 {
     //pixel_size = point_size * resolution / 72//max_advance_Width to quickly calculate advance width of string
@@ -157,14 +162,14 @@ status TextEngine::setTextSize(int width, int height)
 {
 
     KSLOGD(TAGLOG,"%f xdpi %f ydpi",displayParams.xdpi,displayParams.ydpi);
-  FT_Error  fterror = FT_Set_Char_Size(fontFace,0*64,height*64,0,displayParams.ydpi);// FT_Set_Pixel_Sizes(fontFace, 0, 64);
+    FT_Error  fterror = FT_Set_Pixel_Sizes(fontFace, 0, height);//FT_Set_Char_Size(fontFace,0*64,height*64,0,0);////
     if(fterror)
     {
-        KSLOGE(TAGLOG,"FATAL ERROR : COULD NOT SET TEXT SIZE =>RETRY OR .........");
+        KSLOGE(TAGLOG,"FATAL ERROR : COULD NOT SET font SIZE =>RETRY OR .........");
         return -1;
     }
-    fontHeight=height;
-    fontWidth=width;
+    fontHeight = height;
+    fontWidth = width;
     KSLOGD(TAGLOG,"set font size %d , %d",fontWidth,height);
     return 0;
 }
@@ -182,6 +187,7 @@ status TextEngine::init()
     KSLOGD(TAGLOG,"FreeType's version is %d.%d.%d\n", major, minor, patch);
     if(setFont(defaultFont) != 0)
         return -1;
+    fontWidth = defaultFontSize,fontHeight = defaultFontSize;
     return setTextSize(fontWidth,fontHeight);
 }
 

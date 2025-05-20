@@ -58,30 +58,30 @@ void View::fitToBounds(int BStartX, int BStartY, int BWidth, int BHeight,bool ke
     //TODO aspect ratio to float and denoms zeores
     float newWidth,newHeight;
     //float aspectRatioImage=width/height;
-    float xRation,yRation;
-    xRation=width/BWidth;
-    yRation=height/BHeight;
-    if(xRation>1 || yRation>1)
-    {
-        float finalRatio;
-        if(xRation>=yRation)
-            finalRatio=xRation;
-        else
-            finalRatio=yRation;
+    float xRation,yRation,finalRatio = 1.0;
+    xRation = width / BWidth;
+    yRation = height / BHeight;
 
-        newHeight=height/finalRatio;
-        newWidth=width/finalRatio;
-
-    }
-    else
+    if( xRation >= yRation)
     {
-        newWidth=width;
-        newHeight=height;
-    }
-    float  xdiff=BWidth-newWidth;
-    float  ydiff=BHeight-newHeight;
+        finalRatio = xRation;
+    }else
+        finalRatio = yRation;
+
+//If any bug revert;
+
+    newHeight = height/finalRatio;
+    newWidth = width/finalRatio;
+
+
+    float  xdiff = BWidth-newWidth;
+    float  ydiff = BHeight-newHeight;
     //  {UILogE("negative difference xdiff %f and ydiff %f",xdiff,ydiff);}
+
+    KSLOGD("FitToBounds","previous(%f,%f), new(%f,%f),bounds(%d,%d)",width,height,newWidth,newHeight,BWidth,BHeight);
+
     setBounds(BStartX+(xdiff/2.0),BStartY+(ydiff/2.0),newWidth,newHeight);
+
 }
 void View::fitToBoundsWithCentre(int centreX, int centreY, int BWidth, int BHeight)
 {
@@ -116,6 +116,14 @@ Renderer *View::getRenderer() {
     View *root = getRootView();
 
    return root != nullptr ? root->renderer : nullptr;//TODO should also acesseble in non rootViews(but should be set at the creation of View;
+
+}
+
+void View::setBoundsWithCentre(float centreX, float centreY, float width, float height) {
+
+    float sx = centreX - width/2.0;
+    float sy = centreY - height/2.0;
+    setBounds(sx,sy,width,height);
 
 }
 

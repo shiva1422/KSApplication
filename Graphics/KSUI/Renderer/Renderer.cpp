@@ -9,7 +9,7 @@ void Renderer::setDisplayMetrics(const DisplayMetrics displayMetrics) {
 
     View::dispMetrics = displayMetrics;
     //KSLOGD("Renderer", "DisplayMetrics set");
-    displayMetrics.print();
+   // displayMetrics.print();
 }
 
 DisplayMetrics Renderer::getDisplayMetrics() {

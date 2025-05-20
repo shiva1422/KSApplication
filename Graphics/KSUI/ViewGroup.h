@@ -73,6 +73,7 @@ protected:
 
     GLView glBounds;//Bounds of this View
 
+
 };
 
 

@@ -47,7 +47,8 @@ private:
     std::string text;
     KSImage *textImage = nullptr;
     GLImageView textImageView;
-    uint fontSize = 14 ;
+    uint fontSize = TextEngine::defaultFontSize ;
+    std::string font = TextEngine::defaultFont;
 
     bool alignCentre = false;//Later add enums and process accordingly;
 

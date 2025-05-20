@@ -130,8 +130,11 @@ float GLView::getCenterYGL()const {
 bool GLView::initializeUI()
 {
 
+    //TODO called only once;
     GLuint bufferIds[3];
+
     glGenBuffers(3,bufferIds);
+
     defaultIndexBufId=bufferIds[0], defaultUVBufId=bufferIds[1], defaultVertexBufId=bufferIds[2];
     //for(int i=0;i<3;i++)UILogE("%d, defaultVertexBufId %d",bufferIds[i],defaultVertexBufId);
 

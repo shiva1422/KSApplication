@@ -16,6 +16,9 @@
 
 //TODO REfactor whole thing also include Kerning
 //TODO use common bitmap structs
+
+
+
 typedef int status;
 struct PixaMap{
     uint8_t *pixels = nullptr;
@@ -53,6 +56,14 @@ public:
 
     uint getFontSize(){return fontWidth;}
 
+
+public:
+
+    static const int defaultFontSize;
+
+    static const char *defaultFont;
+
+
 private:
 
     TextEngine() {};
@@ -67,15 +78,17 @@ private:
 
      FT_Face fontFace;
 
-     int fontHeight = 28,fontWidth = 28;
-
-     const char *defaultFont="/system/fonts/DroidSans.ttf";
-
      DisplayMetrics displayParams;
+
+
+
 
 private:
 
     static TextEngine *textEngine ;
+
+    int fontWidth ,fontHeight ;
+
 
 
 };

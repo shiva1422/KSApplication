@@ -16,6 +16,10 @@ ViewGroup::ViewGroup() {
 
 void ViewGroup::addView(View *child) {
 
+    if(child->parent)
+    {
+        child->removeFromParent();
+    }
     children.push_back(child);
     child->parent = this;
 }

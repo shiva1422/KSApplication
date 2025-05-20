@@ -37,6 +37,11 @@ public:
 
     static KSImage* loadImageAsset(const char* path);
 
+    static void onApplicationCreated(long appHandle);
+
+
+    static KSImage *loadImageFile(const char *path);
+
 private:
     static jclass cls;
     static JavaVM *vm;

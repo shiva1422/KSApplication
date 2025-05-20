@@ -21,6 +21,8 @@ public:
 
     bool setImage(const char *path);
 
+    bool setImageFromFile(const char* path);
+
     bool setTextureImage(KSImage *image);
 
 

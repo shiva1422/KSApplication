@@ -15,6 +15,8 @@ class GLRenderer : public Renderer {
 public:
 
 
+    ~GLRenderer()override;
+
     bool setSurfaceWindow(KSWindow &window);
 
     virtual void setWindow(KSWindow *window) override
@@ -22,7 +24,7 @@ public:
         Renderer::setWindow(window);
         KSWindow ksWindow;
         ksWindow.setWindow(window->get());//TODO optimize
-        setSurfaceWindow(ksWindow);
+        setSurfaceWindow(ksWindow);//TODO wtf?
     }
 
     int getWidth()override{return glContext.getWidth();}

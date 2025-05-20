@@ -39,9 +39,12 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
 
 
     AppJavaCalls::init(app);
+    updateDisplayMetrics();
+
     if(bUseGL)
     {
         renderer = new GLRenderer();
+        renderer->init();
         ((GLRenderer *)renderer)->enableBlending();
     }
 
@@ -50,8 +53,6 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
         KSLOGE(APPTAG,"unimplemented vulkan");
         //renderer = new VulkanUIRenderer();
     }
-    updateDisplayMetrics();
-    renderer->init();
     KSLOGV(appName.c_str(),"prepare Shaders %d", Shader::prepareShaders(this));//TODO move to application/Graphics aptly
 
 
@@ -67,6 +68,11 @@ KSApplication::~KSApplication()
 {
     //Clear Shaders
     //Clear Graphics Context;
+
+    Shader::clearShaders();
+    delete renderer;
+    delete customEvents;
+
 }
 
 void KSApplication::run()
@@ -140,6 +146,8 @@ void KSApplication::onWindowRedrawNeeded()
 }
 void KSApplication::onWindowTermination()
 {
+    //renderer->setWindow(&window);
+    bWindowInit = false;
     KSLOGD(this->appName.c_str(),"KS EVENT : Window Terminating");
 }
 void KSApplication::onContentRectChanged()
@@ -165,12 +173,12 @@ void KSApplication::onPause()
 }
 void KSApplication::onStop()
 {
-    bWindowInit= false;
+    bWindowInit = false;
     KSLOGD(this->appName.c_str(),"KS EVENT :Stop");
 }
 void KSApplication::onDestroy()
 {
-    bWindowInit= false;
+    bWindowInit= false;//TODO order
     bAppDestroyed = true;
     KSLOGD(this->appName.c_str(),"KS EVENT :Destroy");
 }
@@ -251,6 +259,7 @@ int KSApplication::getAssetFD(const char *assetLoc)
 IKSStream *KSApplication::_openAsset(const char *assetPath)
 {
 
+    KSLOGD(appName.c_str(),"Opening Asset %s",assetPath);
     AAsset *asset = AAssetManager_open(getAssetManager(),assetPath,AASSET_MODE_RANDOM);
     IKSStream *reader = nullptr;
     if(asset)
@@ -431,6 +440,12 @@ bool KSApplication::_copyAssetDirToDevice(const char *assetDir, const char *dest
     }
     return true;
 }
+
+KSImage *KSApplication::_loadImage(const char *path) {
+    return AppJavaCalls::loadImageFile(path);
+
+}
+
 
 AssetManager* AssetManager::mAssetManager = nullptr;
 FileManager* FileManager::fileManager = nullptr;

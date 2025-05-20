@@ -8,6 +8,7 @@
 
 #include <Texture/GLTexture.h>
 #include "GLView.h"
+#include "PhotoEditor/Texture/TextureID.hpp"
 #include <array>
 
 class GLImageView : public GLView {
@@ -30,6 +31,8 @@ public:
 
     virtual bool setImage(const char* path);
 
+    virtual bool setImageFromFile(const char* path);
+
     virtual bool setTextureImage(KSImage *image);
 
     virtual  bool setGLTexture(const GLTexture* tex)
@@ -40,7 +43,7 @@ public:
 
     virtual bool setTexture(const GLuint texId)
     {
-        this->texture.tex = texId;
+        this->texture.tex = texId;//TODO previous Texture;
         return true;
     }
 
@@ -53,6 +56,19 @@ public:
                      float gradientStrength) override;
 
 
+    void drawTexture(GLuint i);
+
+    ks::Size<int> getTextureSize();
+
+
+    Texture getTexture()
+    {
+        Texture t;
+        t.id = texture.getTexture();
+        t.width = texture.getWidth();
+        t.height = texture.getHeight();
+        return t;
+    }
 protected:
     //TODO reset as req
     GLTexture texture;
@@ -64,6 +80,7 @@ protected:
  * Used to relatively highlight/shadow specific region of the image;
  * Shaders : alphablock.vert,alphablock.frag.
  */
+
 class GLAlphaBlockImageView : public GLImageView{
 
 public:

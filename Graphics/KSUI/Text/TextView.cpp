@@ -6,8 +6,7 @@
 #include "TextView.h"
 #include "TextView.h"
 
-
-
+#define TAGLOG "TextView"
 //Keep a shared texture map 2dTextureArray for characters used
 
 TextView::TextView() {
@@ -18,12 +17,17 @@ TextView::TextView() {
 
 TextView::~TextView() {
 
+
+    KSLOGD(TAGLOG,"Text %s",text.c_str());
     if(parent != nullptr)
     {
         removeFromParent();//TODO move this to base class
     }
     if(textImage)
+    {
         delete textImage;
+        textImage = nullptr;
+    }
 }
 
 
@@ -74,6 +78,7 @@ void TextView::setText(const std::string &t) {
         if(TextEngine::getInstance()->getFontSize() != fontSize)
         {
             TextEngine::getInstance()->setTextSize(fontSize,fontSize);
+            KSLOGD(TAGLOG,"setfont %u",fontSize);
         }
         textImage = TextEngine::getInstance()->getImageFromText(text);
 
@@ -93,9 +98,9 @@ void TextView::setText(const std::string &t) {
 
 }
 
-void TextView::setFontSize(const uint fontSize) {
+void TextView::setFontSize(const uint pfontSize) {
 
-    this->fontSize = fontSize;
+    this->fontSize = pfontSize;//Reset Text;
 
 }
 

@@ -10,11 +10,18 @@
 
 #if __ANDROID_API__ >= 24
 #include <GLES3/gl32.h>
+#include <GLES3/gl3ext.h>
 #elif __ANDROID_API__ >= 21
 #include <GLES3/gl31.h>
+#include <GLES3/gl3ext.h>
 #else
 #include <GLES3/gl3.h>
+#include <GLES3/gl3ext.h>
+
 #endif
+
+#include <GLES2/gl2ext.h>
+
 
 //TODO destroy,sharedContext
 
@@ -24,11 +31,13 @@ public:
 
     GLContext(){};
 
-    ~GLContext();
+    virtual ~GLContext();
 
     bool create();
 
     bool createSharedOffScreenContext(const GLContext* sharedContext,int bufferWidth,int bufferHeight);
+
+    bool createSharedContext(GLContext* sharedContext);
 
     bool setWindow(KSWindow &window);//surface
 
@@ -49,6 +58,8 @@ public:
     }
 
     static GLenum getError(const char* tag);
+
+    void release();
 
 private:
     int32_t width,height;

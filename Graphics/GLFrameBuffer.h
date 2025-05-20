@@ -7,6 +7,8 @@
 
 
 #include "GLContext.h"
+#include "Geometry.h"
+#include "PhotoEditor/Texture/TextureID.hpp"
 
 class GLFrameBuffer {
 
@@ -17,7 +19,7 @@ public:
 
     GLFrameBuffer(int width,int height);
 
-    ~GLFrameBuffer();
+    virtual ~GLFrameBuffer();
 
     void configure();
 
@@ -34,10 +36,26 @@ public:
      */
     static void setToDefault(int widht = -1,int height = -1);
 
+    void reconfigure(int width,int height);
+
     void makeActive();
 
     GLuint getBufferTexture(){return texId;}
 
+    int getWidth(){return width;}
+
+    int getHeight(){return  height;}
+
+    /**
+     * @brief once this function returns the texture and therefore the frameBuffer becomes invalid. reconfigure if a reuse need or delete;
+     * @return the texture attached to FrameBuffer,
+     */
+    Texture aquireTexture();
+
+
+    ks::Size<int> getSize(){return ks::Size<int>(width,height);}
+
+    void rebindTexture();
 
 private:
 
@@ -45,7 +63,10 @@ private:
 
     void configureDepthBuffer();
 
-private:
+     void clearResources();
+
+
+protected:
 
     GLuint id = 0;
 

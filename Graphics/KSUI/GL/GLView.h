@@ -56,6 +56,11 @@ public:
 
     void setBounds(float startX, float startY, float width, float height) override;
 
+
+   static float* getDefaultVertices(){ return defaultVerts;}
+
+    static GLuint defaultUVBufId;
+    static GLuint defaultIndexBufId;
 protected:
 
     float  vertices[8];//in GL Coordinates
@@ -65,8 +70,6 @@ protected:
     //TODO from multiple threads;
     static float  defaultVerts[8];
     static GLuint defaultVertexBufId;
-    static GLuint defaultIndexBufId;
-    static GLuint defaultUVBufId;
 
 
 };

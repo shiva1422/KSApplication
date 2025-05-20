@@ -20,6 +20,7 @@ public:
 
     static bool toggleKeyboardOpen();
 
+    static void onApplicationCreated(long appHandle);
 };
 
 

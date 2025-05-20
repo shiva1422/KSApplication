@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.31.0)
 
 
-add_library(kstextlib STATIC Text.cpp TextView.cpp)
+add_library(kstextlib STATIC Text.cpp TextView.cpp Font.cpp)
 
 set(FREETYPE /Users/kalasoft/projects/production/kalasoft/external/ft/mac/ft)
 

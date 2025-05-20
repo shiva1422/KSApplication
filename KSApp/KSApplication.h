@@ -1,3 +1,5 @@
+
+
 //
 // Created by kalasoft on 10/5/21.
 //
@@ -34,7 +36,7 @@ class KSApplication : public AssetManager , public ks::MotionEventInterceptor, p
 
 public:
 
-    KSApplication() = delete;
+    KSApplication() = default;
 
     //TODO make paap as opaque for different platforms
     KSApplication(android_app *papp,std::string name = "KSApplication") ;
@@ -53,7 +55,7 @@ public:
     //Set App UI View
     void setContentView(const View *content);
 
-    AAssetManager *getAssetManager();
+    virtual AAssetManager *getAssetManager();
 
     int getAssetFD(const char* assetLoc);
 
@@ -86,10 +88,14 @@ public:
     void removeKeyboardListener(KeyEventInterceptor *l) override;
 
 
+
 protected:
 
     void getFileListInDir(const char *directory,
                           std::vector<std::pair<std::string, std::string>> &filePaths) override;
+
+    KSImage *_loadImage(const char *path) override;
+
 
 protected:
     //lifeCycle and Events
@@ -167,11 +173,13 @@ protected:
     DisplayMetrics displayMetrics{0};
 
     //All UI and display related control only through renderer(even dispMetrics and view initalizations)
-     Renderer *renderer;//todo clear resources.
+     Renderer *renderer = nullptr;//todo clear resources.
 
      std::string appName{"KSApplication"};
 
      bool bWindowInit = false;
+
+    android_app* getApp(){return app;}
 
 
 private:
@@ -183,10 +191,9 @@ private:
     android_app *app;
 
     //UIRenderer
-    GLContext glContext;
     KSWindow window;
 
-    CustomEvents *customEvents;////////////
+    CustomEvents *customEvents = nullptr;////////////
 
     //VulkanContext vulkanContext;
     // GLuint uiProgram;
@@ -207,9 +214,6 @@ private:
 private:
 
     std::vector<ks::KeyEventInterceptor *> keyboardListeners;
-
-
-
 
 };
 

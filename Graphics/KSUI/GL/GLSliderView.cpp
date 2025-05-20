@@ -10,7 +10,8 @@
 
 GLSliderView::GLSliderView() {
 
-
+    pointerView.setImage("common/icons/slidepointer.png");
+    baseLine.setImage("common/icons/sliderbar.png");
 }
 
 GLSliderView::~GLSliderView() {
@@ -31,7 +32,7 @@ void GLSliderView::setValue(const float value) {
 
 void GLSliderView::setBounds(float startX, float startY, float width, float height) {
     View::setBounds(startX, startY, width, height);
-    baseLine.setBounds(startX,startY,width,baselineHeight);
+    baseLine.setBoundsWithCentre(getCentreX(),getCentreY(),width,baselineHeight);
     pointerView.setBounds(startX + width * (value-minValue)/(maxValue-minValue) - pointerWidth/2.0, baseLine.getCentreY()-pointerHeigth/2.0, height,height);
 
 }

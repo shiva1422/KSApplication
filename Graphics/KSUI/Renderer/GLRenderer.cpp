@@ -15,13 +15,18 @@
 #include "Shaders/vert.glsl"
 #include "Graphics/KSUI/GL/GLView.h"
 
+
+GLRenderer::~GLRenderer() {
+
+    glContext.release();
+}
+
 bool GLRenderer::onRender() {
     //TODO backGroudn
    //KSLOGI("onRender","drawn");
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //glUseProgram(texProg);
     if(content != nullptr)
     {
         View *view = static_cast<View *>(content);
@@ -29,7 +34,7 @@ bool GLRenderer::onRender() {
     }
     else
     {
-       //KSLOGE("Renderer","no contentView");
+       KSLOGE("Renderer","no contentView");
     }
 
 
@@ -74,4 +79,5 @@ bool GLRenderer::initOffScreenShared(GLRenderer *sharedRenderer, int width, int 
     return glContext.createSharedOffScreenContext(sharedRenderer->getGLContext(),width,height);
 
 }
+
 

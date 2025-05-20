@@ -25,6 +25,11 @@ bool GLImageView::setImage(const char* path)
 {
     return texture.setImage(path);
 }
+
+bool GLImageView::setImageFromFile(const char *path) {
+    return texture.setImageFromFile(path);
+}
+
 bool GLImageView::setTextureImage( KSImage *image) {
     return texture.setTextureImage(image);
 }
@@ -39,11 +44,13 @@ void GLImageView::setBounds(float startX, float startY, float width, float heigh
 
 void GLImageView::draw() {
 
-   // GLView::draw();
+
+
+   if(bDrawBackGround)
+       GLView::draw();
 
     if(!texture.isValid())
     {
-        clearBackground();
         KSLOGW("GLImageView","invalid texture");
         return;
     }
@@ -82,6 +89,32 @@ void GLImageView::setXY(int x, int y) {
 void GLImageView::setGradient(float r1, float g1, float b1, float r2, float g2, float b2,
                               float gradientStrength) {
     View::setGradient(r1, g1, b1, r2, g2, b2, gradientStrength);
+}
+
+void GLImageView::drawTexture(GLuint texure) {
+
+    glUseProgram(Shader::getTextureProgram());
+
+    glEnableVertexAttribArray(Shader::getTextureVertsLocation());
+    glVertexAttribPointer(Shader::getTextureVertsLocation(), 2, GL_FLOAT, GL_FALSE, 0,(void *)getVertices());
+
+    glEnableVertexAttribArray(Shader::getTextureCoordsLocation());
+    glBindBuffer(GL_ARRAY_BUFFER,GLView::defaultUVBufId);
+    glVertexAttribPointer(Shader::getTextureCoordsLocation(),2,GL_FLOAT,GL_FALSE,0,(void *) nullptr);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,texure);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,GLView::defaultIndexBufId);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+    //
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+    glBindTexture(GL_TEXTURE_2D,0);
+
+}
+
+ks::Size<int> GLImageView::getTextureSize() {
+
+    return {texture.width,texture.height};
 }
 
 

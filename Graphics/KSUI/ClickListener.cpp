@@ -4,6 +4,7 @@
 
 #include "ClickListener.h"
 #include "View.h"
+
 ClickListener::~ClickListener() {
 
 }

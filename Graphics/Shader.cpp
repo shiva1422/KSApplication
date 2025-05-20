@@ -163,6 +163,7 @@ GLuint Shader::rectProg = 0;
 GLuint Shader::texProg = 0;
 GLuint Shader::alphaBlock = 0;
 GLuint Shader::mvpTextureProgram = 0;
+GLuint Shader::blendProgram = 0;
 
 //all should default to -1;
 GLint  Shader::textureVertsLocation = 0;
@@ -171,7 +172,7 @@ GLint  Shader::rectVertsLocation = 0;
 GLint  Shader::rectColorLocation = 0;
 GLint  Shader::alphaBlockVertsLocation = 0;
 GLint  Shader::alphaBlockTextCoordsLocation = 0;
-GLint Shader::alphaBlockLocation = 0;
+GLint  Shader::alphaBlockLocation = 0;
 
 
 GLint Shader::mvpTextureVertsLocation = 0;
@@ -181,9 +182,11 @@ GLint Shader::mvpProjectionLocation = 0;
 GLint Shader::mvpViewLocation = 0;
 
 
+
 /**
  *TODO handle failures aptly.
  *TODO add  locations inside the shaders manually.
+ * ShaderManager instance for Appication,with shader in it;
  */
 bool Shader::prepareShaders(AssetManager *assetManager)
 {
@@ -243,12 +246,26 @@ bool Shader::prepareShaders(AssetManager *assetManager)
         mvpProjectionLocation = glGetUniformLocation(mvpTextureProgram, "proj");
         mvpViewLocation = glGetUniformLocation(mvpTextureProgram, "view");
 
-
+        vertA = assetManager->openAsset("common/shaders/texture.vert");
+        fragA = assetManager->openAsset("common/shaders/addtextures.frag");
+        assert(vertA && fragA);
+        blendProgram = Shader::createProgram(vertA,fragA);
 
     }
     return true;
 }
 
+
+void Shader::clearShaders()
+{
+    glDeleteProgram(baseProg);
+    glDeleteProgram(rectProg);
+    glDeleteProgram(texProg);
+    glDeleteProgram(alphaBlock);
+    glDeleteProgram(mvpTextureProgram);
+    glDeleteProgram(blendProgram);
+
+}
 
 GLuint Shader::createComputeProgram(const char *shaderPath)
 {

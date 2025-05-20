@@ -14,9 +14,9 @@ class DisplayMetrics{
 
 public:
 
-    int32_t screenWidth=0,screenHeight=0,densityDpi=0,deviceStableDensity=0;
+    int32_t screenWidth=0,screenHeight=0,densityDpi=1,deviceStableDensity=0;
 
-    float density=0.0f,scaledDensity=0.0f,xdpi=0.0f,ydpi=0.0f;
+    float density=1.0f,scaledDensity=1.0f,xdpi=1.0f,ydpi=1.0f;
 
     int pixelToDP(int pixels,EScreenDirection dir)
     {

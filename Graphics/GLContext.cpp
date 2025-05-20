@@ -6,14 +6,18 @@
 #include <assert.h>
 #include "GLContext.h"
 #include "initializer_list"
-#define LOGTAG "GLContext"
 #include "KSWindow.h"
+
+#define LOGTAG "GLContext"
 
 //TODO choose config right
 
 GLContext::~GLContext() {
 
-    eglDestroySurface(eglDisplay,eglSurface);
+    if(eglSurface != EGL_NO_SURFACE)
+    {
+        eglDestroySurface(eglDisplay,eglSurface);
+    }
     eglDestroyContext(eglDisplay,eglContext);
 }
 
@@ -121,6 +125,7 @@ bool GLContext::setWindow(KSWindow &window)
 
     printInfo();
 
+  //  ANativeWindow_release(window.get());
     return true;
 
 }
@@ -272,6 +277,50 @@ GLenum GLContext::getError(const char *tag) {
 
     }
     return glError;
+}
+
+bool GLContext::createSharedContext(GLContext *sharedContext) {
+
+    const EGLint attribs[]={EGL_RENDERABLE_TYPE,EGL_OPENGL_ES3_BIT,EGL_BLUE_SIZE, 8,EGL_GREEN_SIZE, 8,EGL_RED_SIZE, 8, EGL_SURFACE_TYPE, EGL_WINDOW_BIT,EGL_NONE};
+    const EGLint context_attribs[]={EGL_CONTEXT_CLIENT_VERSION,3,EGL_NONE};
+    EGLint numConfigs;
+    eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if(eglDisplay == EGL_NO_DISPLAY)
+    {
+        KSLOGE(LOGTAG, "create - no display");
+        return false;
+    }
+    if(!eglInitialize(eglDisplay, nullptr, nullptr))//can pass variable to get the result opengl versions
+    {
+        KSLOGE(LOGTAG, "create - egl initialize failed");
+        return false;
+    }
+    if(!eglChooseConfig(eglDisplay, attribs, &config,1, &numConfigs)||numConfigs<=0)
+    {    //////TODO chose the first config
+        KSLOGE(LOGTAG, "eglChooseConfig failed ");
+        return false;
+
+    }
+    if (config == nullptr)
+    {
+        KSLOGE(LOGTAG, "Unable to initialize EGLConfig");
+        return false;
+    }
+
+    if((eglContext = eglCreateContext(eglDisplay, config, sharedContext->eglContext, context_attribs))==EGL_NO_CONTEXT)
+    {
+        KSLOGE(LOGTAG, "context creation failed");
+        return false;
+    }
+
+   // printInfo();
+
+    return true;
+}
+
+void GLContext::release() {
+
+    eglMakeCurrent(eglDisplay, eglSurface, eglSurface, nullptr);
 }
 
 

@@ -11,9 +11,13 @@
 
 #include "stdint.h"
 
+#define TOUCHID_INVALID INT32_MIN;
+
 namespace ks{
 
     typedef int32_t TouchID;
+
+
 
     enum EMotionEventAction{
 
