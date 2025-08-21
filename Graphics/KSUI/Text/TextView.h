@@ -11,6 +11,14 @@
 #include <KSUI/GL/GLImageView.h>
 
 
+
+enum ETextAlignment{
+
+    AlignLeft,
+    AlignCentre,
+    AlignRight
+
+};
 //TODO map all characters into a Texture and draw based on index;
 class TextView : public GLView{
 
@@ -33,12 +41,19 @@ public:
     //TODO later align with Bounds with Alignment
     void alignTextToCentre();
 
+    void alignTextLeft();
+
+    void alignTextRight();
+
 
     void setText(const std::string &t);
 
     std::string getText(){return text;}
 
     void setFontSize(uint size);
+
+
+private:
 
 
 
@@ -51,6 +66,8 @@ private:
     std::string font = TextEngine::defaultFont;
 
     bool alignCentre = false;//Later add enums and process accordingly;
+
+    ETextAlignment TextAlignment = ETextAlignment::AlignLeft;
 
 
 public:

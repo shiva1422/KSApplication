@@ -19,12 +19,22 @@ GLTexture::~GLTexture()
 {
     if(glIsTexture(tex))
     glDeleteTextures(1,&tex);
+
+
 }
 
 bool GLTexture::setImage(const char* path)
 {
     KSImage *image = KSImageLoader::loadFromAsset(path);
-    return setTextureImage(image);
+    bool res  = false;
+    if(image)
+    {
+        res =  setTextureImage(image);
+        delete image;
+        image = nullptr;
+    }
+
+    return res;
 }
 
 
@@ -74,6 +84,13 @@ bool GLTexture::setImageFromFile(const char *path) {
 
     KSImage *image = KSImageLoader::loadFromFile(path);
 
-    return setTextureImage(image);
+    bool res  = false;
+    if(image)
+    {
+        res =  setTextureImage(image);
+        delete image;
+        image = nullptr;
+    }
+    return res;
 }
 

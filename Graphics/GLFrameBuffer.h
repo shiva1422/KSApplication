@@ -8,7 +8,7 @@
 
 #include "GLContext.h"
 #include "Geometry.h"
-#include "PhotoEditor/Texture/TextureID.hpp"
+//#include "PhotoEditor/Texture/TextureID.hpp"
 
 class GLFrameBuffer {
 
@@ -50,7 +50,7 @@ public:
      * @brief once this function returns the texture and therefore the frameBuffer becomes invalid. reconfigure if a reuse need or delete;
      * @return the texture attached to FrameBuffer,
      */
-    Texture aquireTexture();
+   // Texture aquireTexture();
 
 
     ks::Size<int> getSize(){return ks::Size<int>(width,height);}

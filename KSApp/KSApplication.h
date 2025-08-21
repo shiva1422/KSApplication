@@ -20,8 +20,8 @@
 #include "Events/KeyEvent.h"
 #include <vector>
 #include <KSApp/Events/KeyEvent.h>
-
-
+#include <KSApp/Events/AppEvent.hpp>
+#include <KSApp/Events/AppEvent.hpp>
 
 /*
  * TODO
@@ -30,9 +30,9 @@
 
 class View;
 class AndroidEvents;
-class CustomEvents;
+class AppEvents;
 
-class KSApplication : public AssetManager , public ks::MotionEventInterceptor, public ks::KeyEventInterceptor, public FileManager{
+class KSApplication : public AssetManager , public ks::MotionEventInterceptor, public ks::KeyEventInterceptor, public FileManager, public AppEventProcessor{
 
 public:
 
@@ -45,7 +45,7 @@ public:
     //friends
     friend AndroidEvents;
 
-    friend CustomEvents;
+    friend AppEvents;
 
 public:
 
@@ -87,6 +87,7 @@ public:
 
     void removeKeyboardListener(KeyEventInterceptor *l) override;
 
+    virtual void onAppEvent(AppEvent event) override;
 
 
 protected:
@@ -142,6 +143,8 @@ protected:
 
     void onScreenRotation();
 
+    virtual void resizeUI(){}
+
 
 
 
@@ -181,10 +184,18 @@ protected:
 
     android_app* getApp(){return app;}
 
+    AppEventMonitor* getAppEventMonitor();
+
 
 private:
 
     bool updateDisplayMetrics();
+
+
+protected:
+
+    AppEvents *appEvents = nullptr;
+
 
 private:
 
@@ -193,7 +204,6 @@ private:
     //UIRenderer
     KSWindow window;
 
-    CustomEvents *customEvents = nullptr;////////////
 
     //VulkanContext vulkanContext;
     // GLuint uiProgram;

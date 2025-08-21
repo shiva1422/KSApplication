@@ -5,13 +5,16 @@
 #include "ViewGroup.h"
 
 
-ViewGroup::~ViewGroup(){
-    //TODO
-}
+
 ViewGroup::ViewGroup() {
 
     this->setTouchListener(new ViewGroupTouchListener);
     children.clear();
+}
+
+
+ViewGroup::~ViewGroup(){
+    //TODO
 }
 
 void ViewGroup::addView(View *child) {

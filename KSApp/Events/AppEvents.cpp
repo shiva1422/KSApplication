@@ -6,12 +6,13 @@
 #include <cerrno>
 #include <cstring>
 #include <Logger/KSLog.h>
-#include "CustomEvents.h"
+#include "AppEvents.h"
 #include <android/looper.h>
 #include "KSApp/KSApplication.h"
+#include "AppEvent.hpp"
 
-
-CustomEvents::CustomEvents(KSApplication *app) {
+#define LOGTAG "AppEvents"
+AppEvents::AppEvents(KSApplication *app) {
 
     this->app = app;
     int msgpipe[2];
@@ -32,10 +33,10 @@ CustomEvents::CustomEvents(KSApplication *app) {
 }
 
 
-void CustomEvents::customPollProcess(struct android_app* app, struct android_poll_source* source)
+void AppEvents::customPollProcess(struct android_app* app, struct android_poll_source* source)
 {
     KSLOGV("Custom poll pRoces","input recieved on Custom Event");
-    CustomEvents  *eventProcessor = (static_cast<KSApplication *>(app->userData))->customEvents;
+    AppEvents  *eventProcessor = (static_cast<KSApplication *>(app->userData))->appEvents;
     if(eventProcessor)
     {
             eventProcessor->processEvent();
@@ -43,25 +44,36 @@ void CustomEvents::customPollProcess(struct android_app* app, struct android_pol
 
 }
 
-void CustomEvents::processEvent()
+void AppEvents::processEvent()
 {
+    AppEvent event;
 
- /*   CustomMsg msg;
-    if (read(readFd, &msg, sizeof(msg)) == sizeof(msg))
+    if (read(readFd, &event, sizeof(event)) == sizeof(event))
     {
-        switch (msg.eEventType)
-        {
-            case IMPORTIMAGE:
-            {
-                PhotoApp *globalData= static_cast<PhotoApp *>(app->userData);
-                globalData->onImportImage(msg.fd);
-            }break;
 
+        if(eventProcessor)
+        {
+            eventProcessor->onAppEvent(event);
         }
+
     }
     else
     {
-        Loge("CustomPollProcess","cannot obtain msg");
-    }*/
+        KSLOGE(LOGTAG,"cannot obtain event");
+    }
+
+
+}
+
+void AppEvents::onAppEvent(AppEvent event) {
+
+    //TODO multiple events;
+    if(write(writeFd, &event, sizeof(event)) != sizeof(event))
+    {
+        KSLOGE("addCustomEvent","Failure writing android_app cmd: %s\n", strerror(errno));
+        return;
+    }
+
+    KSLOGD("CustomEvent","added");
 }
 

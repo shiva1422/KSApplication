@@ -11,7 +11,7 @@
 
 #include "stdint.h"
 
-#define TOUCHID_INVALID INT32_MIN;
+#define TOUCHID_INVALID INT32_MIN
 
 namespace ks{
 

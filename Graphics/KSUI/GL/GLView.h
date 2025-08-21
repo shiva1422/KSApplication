@@ -14,6 +14,10 @@ class GLView : public  View{
     // call initializeUI() before any GLView operations;//TODO move this to renderer of specific thread
 public:
 
+    GLView(){}
+
+    virtual ~GLView()override;
+
     void clearBackground() override;
 
     void setBounds(float width, float height) override;
@@ -61,6 +65,7 @@ public:
 
     static GLuint defaultUVBufId;
     static GLuint defaultIndexBufId;
+
 protected:
 
     float  vertices[8];//in GL Coordinates

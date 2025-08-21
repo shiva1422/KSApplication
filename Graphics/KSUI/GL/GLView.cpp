@@ -14,6 +14,11 @@ GLuint GLView::defaultIndexBufId=0;
 GLuint GLView::defaultUVBufId=0;
 float GLView::defaultVerts[]={-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
 
+
+GLView::~GLView() {
+
+}
+
 void GLView::setBounds(float startX, float startY, float width, float height)
 {
     View::setBounds(startX, startY, width, height);
@@ -244,6 +249,7 @@ std::vector<float> GLView::getScreenCoordVerts() {
 
     return screenVerts;
 }
+
 
 
 

@@ -10,7 +10,6 @@
 #include "string"
 
 #define TAGRENDER "GLUIRenderer"
-#define GLSLTOSTRING(...) #__VA_ARGS__
 
 #include "Shaders/vert.glsl"
 #include "Graphics/KSUI/GL/GLView.h"
@@ -71,6 +70,7 @@ void GLRenderer::disableBlending() {
 
 void GLRenderer::setContent(void *view) {
     Renderer::setContent(view);
+    if(view)
     ((View *)content)->setRenderer(this);
 }
 

@@ -44,11 +44,14 @@ void TextView::setBounds(float startX, float startY, float width, float height) 
         float dh = dispMetrics.pixelToDP(textImage->height,EScreenDirection::Y);
 
         textImageView.setBounds(startX + 16,startY + height/2.0 - dh/2.0,dw,dh);
-        if(alignCentre)
+
+        if(TextAlignment == AlignCentre)
         {
             alignTextToCentre();
+        }else if(TextAlignment == AlignRight)
+        {
+            alignTextRight();
         }
-
 
     }
 }
@@ -106,8 +109,23 @@ void TextView::setFontSize(const uint pfontSize) {
 
 void TextView::alignTextToCentre() {
 
-    alignCentre = true;
+    TextAlignment = AlignCentre;
     float sx = getCentreX() - textImageView.getWidth()/2.0;
+    textImageView.setBounds(sx,textImageView.getStartY(),textImageView.getWidth(),textImageView.getHeight());
+}
+
+void TextView::alignTextLeft() {
+
+    TextAlignment = AlignLeft;
+    //float sx = getCentreX() - textImageView.getWidth()/2.0;
+  //  textImageView.setBounds(sx,textImageView.getStartY(),textImageView.getWidth(),textImageView.getHeight());
+
+}
+
+void TextView::alignTextRight() {
+
+    TextAlignment = AlignRight;
+    float sx = getEndX() - textImageView.getWidth();
     textImageView.setBounds(sx,textImageView.getStartY(),textImageView.getWidth(),textImageView.getHeight());
 }
 

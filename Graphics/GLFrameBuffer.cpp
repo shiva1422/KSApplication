@@ -6,7 +6,7 @@
 #include <assert.h>
 #include "GLFrameBuffer.h"
 #include "KSUI/Renderer/Renderer.h"
-#include "PhotoEditor/Texture/TextureID.hpp"
+//#include "PhotoEditor/Texture/TextureID.hpp"
 
 
 #define TAGLOG "GLFrameBuffer"
@@ -114,7 +114,7 @@ void GLFrameBuffer::setToDefault(int width, int height) {
 
 }
 
-Texture GLFrameBuffer::aquireTexture() {
+/*Texture GLFrameBuffer::aquireTexture() {
 
 
    /* glBindFramebuffer(GL_FRAMEBUFFER,id);
@@ -123,13 +123,13 @@ Texture GLFrameBuffer::aquireTexture() {
     glBindFramebuffer(GL_FRAMEBUFFER,0);*/
 
 
-    Texture t;
+ /*   Texture t;
     t.id  = texId;
     texId = 0;
     t.width = width;
     t.height = height;
     return t;
-}
+}*/
 
 void GLFrameBuffer::clearResources() {
 

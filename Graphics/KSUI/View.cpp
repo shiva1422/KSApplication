@@ -8,10 +8,12 @@
 #include "View.h"
 #include "ClickListener.h"
 #include "ViewGroup.h"
+
+
 DisplayMetrics View::dispMetrics = {0};
-/*
- * Check centreX , centre Y without bounds
- */
+
+
+
 View::View(){}
 
 View::~View()
@@ -107,15 +109,14 @@ void View::removeFromParent() {
 
 View* View::getRootView()
 {
-    if(!parent)return this;
-    return parent->getRootView();
+    return parent == nullptr ? this : parent->getRootView();
 }
 
 Renderer *View::getRenderer() {
 
     View *root = getRootView();
 
-   return root != nullptr ? root->renderer : nullptr;//TODO should also acesseble in non rootViews(but should be set at the creation of View;
+   return root != nullptr ? root->renderer : nullptr;//TODO RenderContext;
 
 }
 

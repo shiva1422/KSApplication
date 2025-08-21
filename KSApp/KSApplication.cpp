@@ -12,7 +12,7 @@
 #include <CMedia/KSImage.h>
 #include <KSUI/Renderer/VulkanUIRenderer.h>
 #include "Events/AndroidEvents.h"
-#include "Events/CustomEvents.h"
+#include "Events/AppEvents.h"
 #include "KSApp/IO/KSAssetReader.h"
 #include "android/log.h"
 #include "AppUtils.h"
@@ -38,7 +38,6 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     fileManager = this;
 
 
-    AppJavaCalls::init(app);
     updateDisplayMetrics();
 
     if(bUseGL)
@@ -56,7 +55,7 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     KSLOGV(appName.c_str(),"prepare Shaders %d", Shader::prepareShaders(this));//TODO move to application/Graphics aptly
 
 
-    customEvents = new CustomEvents(this);
+    appEvents = new AppEvents(this);
 
     pthread_setname_np(pthread_self(),appName.c_str());
     //TODO after Created looop();
@@ -71,7 +70,7 @@ KSApplication::~KSApplication()
 
     Shader::clearShaders();
     delete renderer;
-    delete customEvents;
+    delete appEvents;
 
 }
 
@@ -87,8 +86,7 @@ void KSApplication::run()
     bool bPoll = false;
     do
     {
-        runTasks();//here or after event/berfore render ? TODO
-        if((eventId = ALooper_pollAll(0,&fdesc,&events,(void **) &source)) >= 0)
+        if((eventId = ALooper_pollOnce(0,&fdesc,&events,(void **) &source)) >= 0)
         {
             if(source != NULL)
             {
@@ -96,6 +94,8 @@ void KSApplication::run()
                 bPoll = true;
             }
         }
+
+        runTasks();
 
         frameClock = std::chrono::system_clock::now();
         delta = frameClock - previousFrameClock;
@@ -109,6 +109,8 @@ void KSApplication::run()
 
     }while(!bAppDestroyed);//(app->destroyRequested==0);
     //dont exit until destroyed requested as only this thread exits not the Activity(apps main thread).  if want to exit call ANativeActivity_finish(or APP_CMD_DESTROY)
+
+    KSLOGD(appName.c_str(),"Exiting");
 
 }
 
@@ -131,10 +133,27 @@ void KSApplication::onScreenRotation()
 void KSApplication::onWindowInit()
 {
     KSLOGD(APPTAG,"WindowInit");
-    //JavaCall::hideSystemUI();//TODO some thing check screen dimension for differnt cases like having navigation bars?
-   // ANativeWindow_setBuffersGeometry(app->window,displayMetrics.screenWidth,displayMetrics.screenHeight,ANativeWindow_getFormat(app->window));
     renderer->setWindow(&window);
     bWindowInit=true;
+
+    int rW = renderer->getWidth();
+    int rH = renderer->getHeight();
+    if((rW != displayMetrics.screenWidth || rH != displayMetrics.screenHeight) && rW > 0 && rH > 0)
+    {
+        KSLOGW(this->appName.c_str(),"DisplayMetrics and RenderWIndow (ANativeWindow ) size mismatch DM(%d,%d) window(%d,%d)",displayMetrics.screenWidth,displayMetrics.screenHeight,rW,rH);
+
+        displayMetrics.screenWidth = rW;
+        displayMetrics.screenHeight = rH;
+
+        forceUpdateDisplayMetrics(displayMetrics);
+
+        resizeUI();
+
+        KSLOGW("KS Event","resize UI");
+    }
+
+    KSLOGD("onWindowInit","RenderWindow set");
+
 }
 void KSApplication::onWindowResized()
 {
@@ -295,7 +314,121 @@ using namespace ks;
 /* Entry point of touch/mouse event into application*/
 bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
 {
-    //Implement is subclass for now later move to right place
+    //Move logic here to a touch Manager;
+
+    View *content = getContentView();
+    if(!content)return false;//Right? if contentView Changes possible? no
+
+    //if(!content->isPointInside(touchX,touchY)) return false;//TODO now only handling oneView check handling in ViewGroups
+
+    int32_t pointerIndex = me.getPointerIndex();
+    int32_t pointerId = me.getPointerId(pointerIndex);
+    float touchX = me.getX(pointerIndex);
+    float touchY = me.getY(pointerIndex);
+
+
+    static std::unordered_set<TouchID> touchesActive;//
+
+    switch(me.getAction())
+    {
+        case EMotionEventAction::DOWN:
+        {
+            KSLOGD("KSEVENT", " Action down Id - %d, index %d",pointerId,pointerIndex);
+
+            if(content->isPointInside(touchX,touchY))
+            {
+                //TODO later avoid or do as required
+                return View::dispatchTouchDown(content,touchX,touchY,pointerId,true);
+            }
+        }break;
+
+        case EMotionEventAction::POINTER_DOWN:
+        {
+            KSLOGD("KSEVENT", " PointerDown Id - %d, index %d",pointerId,pointerIndex);
+
+            if(content->isPointInside(touchX,touchY))
+            {
+                //TODO later avoid or do as required
+                return View::dispatchTouchDown(content,touchX,touchY,pointerId,false);
+            }
+        }break;
+
+        case EMotionEventAction::MOVE:
+        {
+            KSLOGD("KSEVENT", " Action move Id - %d, index %d",pointerId,pointerIndex);//The id index would be first one when multiple touches active
+
+            int32_t pointerCount = me.getPointerCount();
+            //processing for all pointers call only if historyValue and current value differ for particular index
+            //TODO maybe need to check touch event history cause when swipes speed across screen some ponts may be missiong
+            //therfore some enents may not be processed or events may be repeated check;
+            KSLOGD("Action move:","count %d",pointerCount);
+            for(int i = 0;i < pointerCount; ++i)
+            {
+                touchX = me.getX(i);
+                touchY = me.getY(i);
+                pointerId = me.getPointerId(i);//TODO check historical value changed and dispatch,move else moving one finger will trigger motionevent on all view with fingers that haven't moved;
+
+                /*
+               //if(tThe view/touch listener handling this pointerId as touchdown/pointer down or hoveenter maybe.
+               //      if touch inside that view forward motion event to that view
+               //      else forward hoverexit to the view and hover enter to the view which has touch inside
+                *else getView as this location forward hover/enter/move?
+                */
+
+                if(View::isHandlingTouch(content, pointerId))
+                {
+                    if(content->isPointInside(touchX,touchY))
+                    {
+                        View::dispatchMove(content,touchX,touchY,pointerId);//todo result?
+                    }
+                    else
+                    {
+                        View::dispatchHoverExit(content,touchX,touchY,pointerId);//also hover enter to view at location
+                        //TODO hover exit of content and hover enter to whatever View is at this location since content view is the only one, no view for hover enter.
+                    }
+
+                }
+                else
+                {
+                    //TODO
+                    KSLOGE("KSEVENT"," action moveunhandled Id - %d, index %d",pointerId,pointerIndex);
+                }
+
+            }
+
+            //TODO return ?
+        }break;
+        case EMotionEventAction::POINTER_UP:
+        {
+            KSLOGD("KSEVENT", " Action pointer up Id - %d, index %d",pointerId,pointerIndex);
+            //Consider hover enter exit TODO
+            if(content->isPointInside(touchX,touchY))
+            {
+                //TODO later avoid or do as required
+                return View::dispatchTouchUp(content,touchX,touchY,pointerId,false);
+            }
+        }break;
+        case EMotionEventAction::UP:
+        {
+            KSLOGD("KSEVENT", " Action up Id - %d, index %d",pointerId,pointerIndex);
+
+            //Consider hover enter exit TODO
+            if(content->isPointInside(touchX,touchY) )//|| View::isHandlingTouch(content, pointerId) )
+            {
+                //TODO later avoid or do as required
+                return View::dispatchTouchUp(content,touchX,touchY,pointerId,true);
+            }else
+            {
+                KSLOGW("KSEVENT", "Action up warning");//Touch up outside content view/should already be handle in move,as hoverExit
+
+            }
+
+        }break;
+
+        default:
+            assert(false);//TODO
+
+    }
     return false;
 }
 
@@ -444,6 +577,15 @@ bool KSApplication::_copyAssetDirToDevice(const char *assetDir, const char *dest
 KSImage *KSApplication::_loadImage(const char *path) {
     return AppJavaCalls::loadImageFile(path);
 
+}
+
+AppEventMonitor *KSApplication::getAppEventMonitor() {
+    return appEvents;
+}
+
+void KSApplication::onAppEvent(AppEvent event) {
+
+    KSLOGD(appName.c_str(),"Unhandled App event");
 }
 
 

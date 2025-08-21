@@ -38,6 +38,16 @@ void AppUtils::onApplicationCreated(long appHandle) {
 }
 
 
+KSApplication *AppUtils::createNativeAppInstance() {
+
+    return static_cast<KSApplication *>(AppJavaCalls::createNativeAppInstance());
+}
+
+android_app *AppUtils::getAndroidApp() {
+    return AppJavaCalls::getApp();
+}
+
+
 
 
 

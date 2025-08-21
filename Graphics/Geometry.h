@@ -95,6 +95,16 @@ namespace ks
             return Point2D<T>(startX + width/2,startY + height/2);
         }
 
+        T getEndX()
+        {
+            return startX + width;
+        }
+
+        T getEndY()
+        {
+            return startY + height;
+        }
+
     };
 
     typedef Bounds<float> BoundsF;

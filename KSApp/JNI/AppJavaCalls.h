@@ -20,6 +20,7 @@ public:
         AppJavaCalls::app=app;
     }
 
+    static android_app* getApp(){return app;}
     static bool getDisplayMetrics(DisplayMetrics &displayMetrics);
 
     static bool hideSystemUI();
@@ -42,6 +43,8 @@ public:
 
     static KSImage *loadImageFile(const char *path);
 
+    static void* createNativeAppInstance();
+
 private:
     static jclass cls;
     static JavaVM *vm;
@@ -49,6 +52,8 @@ private:
     static android_app *app;
     static bool attachThreadAndFindClass();
     static void detachThread();
+
+    static int attachCount;
 };
 
 

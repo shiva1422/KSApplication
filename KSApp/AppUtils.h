@@ -6,6 +6,7 @@
 #define KALASOFT_APPUTILS_H
 
 
+class KSApplication;
 class AppUtils {
 
 public:
@@ -21,6 +22,10 @@ public:
     static bool toggleKeyboardOpen();
 
     static void onApplicationCreated(long appHandle);
+
+    static KSApplication* createNativeAppInstance();
+
+    static android_app* getAndroidApp();
 };
 
 
