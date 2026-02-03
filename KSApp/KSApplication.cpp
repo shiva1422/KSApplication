@@ -290,6 +290,29 @@ IKSStream *KSApplication::_openAsset(const char *assetPath)
 
     return reader;
 }
+
+int KSApplication::_openFD(const char *assetPaht) {
+
+    int fd = -1;
+    AAsset* asset = AAssetManager_open(getAssetManager(),assetPaht,AASSET_MODE_RANDOM);
+    if(asset)
+    {
+        off64_t start,length;
+        fd = AAsset_openFileDescriptor64(asset,&start,&length);
+        lseek(fd,0,SEEK_SET);
+
+        KSLOGD(appName.c_str(),"FD : %d Open Asset %s : start %llu, length %llu",fd,assetPaht,start,length);
+
+    }else
+    {
+        KSLOGE(appName.c_str(),"Open Asset %s failed",assetPaht);
+        assert(false);
+    }
+
+    return fd;
+
+}
+
 //TODO UI Below
 void KSApplication::setContentView(const View *content)
 {
@@ -425,8 +448,28 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
 
         }break;
 
+
+        case EMotionEventAction::CANCEL:
+        {
+            //TODO
+            if(content->isPointInside(touchX,touchY) )//|| View::isHandlingTouch(content, pointerId) )
+            {
+                //TODO later avoid or do as required
+
+                return View::dispatchTouchUp(content,touchX,touchY,pointerId,false);//TODO not false but based on current pointer count.
+            }else
+            {
+                KSLOGW("KSEVENT", "Action up warning");//Touch up outside content view/should already be handle in move,as hoverExit
+
+            }
+
+        }break;
+
         default:
-            assert(false);//TODO
+
+            //TODO
+            KSLOGE("KSEVENT","Action not handled defaulted %d",me.getAction());
+            //assert(false);//TODO
 
     }
     return false;
@@ -518,13 +561,14 @@ const std::string KSApplication::_getOBBPath() const {
 
 void KSApplication::getFileListInDir(const char *directory,std::vector<std::pair<std::string, std::string>> &filePaths) {
 
+    KSLOGD(appName.c_str(),"getFileList in Dir %s",directory);
     AAssetDir* dir = AAssetManager_openDir(getAssetManager(),directory);
     const char* fileName;
     if(dir != nullptr)
     {
         while((fileName = AAssetDir_getNextFileName(dir)) != nullptr)
         {
-            filePaths.push_back({fileName,""});
+            filePaths.push_back({fileName, std::string(directory) + "/" + fileName});
         }
 
         AAssetDir_close(dir);
@@ -532,6 +576,8 @@ void KSApplication::getFileListInDir(const char *directory,std::vector<std::pair
     {
         KSLOGE(appName.c_str(),"Coundn't open Asset Dir");
     }
+
+    KSLOGD(appName.c_str(),"getFileList Found %d files in %s",filePaths.size(),directory);
 
 }
 
@@ -587,6 +633,7 @@ void KSApplication::onAppEvent(AppEvent event) {
 
     KSLOGD(appName.c_str(),"Unhandled App event");
 }
+
 
 
 AssetManager* AssetManager::mAssetManager = nullptr;

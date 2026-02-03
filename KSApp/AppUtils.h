@@ -7,6 +7,7 @@
 
 
 class KSApplication;
+class android_app;
 class AppUtils {
 
 public:
@@ -26,6 +27,8 @@ public:
     static KSApplication* createNativeAppInstance();
 
     static android_app* getAndroidApp();
+
+    static void goBack();
 };
 
 

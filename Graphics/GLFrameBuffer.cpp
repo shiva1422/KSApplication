@@ -9,12 +9,12 @@
 //#include "PhotoEditor/Texture/TextureID.hpp"
 
 
-#define TAGLOG "GLFrameBuffer"
+#define LOGTAG "GLFrameBuffer"
 
 GLFrameBuffer::GLFrameBuffer()
 {
     glGenFramebuffers(1,&id);
-    KSLOGW(TAGLOG,"Frame Buffer create");
+    KSLOGW(LOGTAG, "Frame Buffer create");
 }
 
 
@@ -48,7 +48,7 @@ void GLFrameBuffer::configureColorBuffer()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D,0);
-    GLContext::getError(TAGLOG);
+    GLContext::getError(LOGTAG);
 }
 void GLFrameBuffer::configureDepthBuffer()
 {
@@ -75,10 +75,10 @@ void GLFrameBuffer::rebindTexture() {
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        KSLOGE(TAGLOG,"error configure FrameBuffer");
+        KSLOGE(LOGTAG, "error configure FrameBuffer");
     }else
     {
-        KSLOGD(TAGLOG,"configure complete");
+        KSLOGD(LOGTAG, "configure complete");
     }
 }
 
@@ -87,7 +87,7 @@ void GLFrameBuffer::configure()
 
     if(!glIsFramebuffer(id))
     {
-        KSLOGW(TAGLOG,"Frame Buffer create");
+        KSLOGW(LOGTAG, "Frame Buffer create");
         glGenFramebuffers(1,&id);
         GLContext::getError("FrameBuffer");
     }
@@ -114,7 +114,7 @@ void GLFrameBuffer::setToDefault(int width, int height) {
 
 }
 
-/*Texture GLFrameBuffer::aquireTexture() {
+Texture GLFrameBuffer::aquireTexture() {
 
 
    /* glBindFramebuffer(GL_FRAMEBUFFER,id);
@@ -123,13 +123,13 @@ void GLFrameBuffer::setToDefault(int width, int height) {
     glBindFramebuffer(GL_FRAMEBUFFER,0);*/
 
 
- /*   Texture t;
+    Texture t;
     t.id  = texId;
     texId = 0;
     t.width = width;
     t.height = height;
     return t;
-}*/
+}
 
 void GLFrameBuffer::clearResources() {
 

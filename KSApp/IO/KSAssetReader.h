@@ -22,7 +22,7 @@ public:
 
     KSAssetReader(AAsset *asset);
 
-    ~KSAssetReader();
+    ~KSAssetReader()override;
 
     int read(void *buf, size_t count) override;
 

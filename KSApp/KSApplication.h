@@ -61,6 +61,8 @@ public:
 
     IKSStream* _openAsset(const char* assetPath) override;
 
+    int _openFD(const char* assetPaht)override;
+
     //getCurrent UI Content
     View* getContentView() const;
 

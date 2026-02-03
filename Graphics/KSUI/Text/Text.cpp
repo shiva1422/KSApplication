@@ -5,7 +5,7 @@
 #include <Logger/KSLog.h>
 #include "Text.h"
 
-#define TAGLOG "TEXTENGINE"
+#define LOGTAG "TEXTENGINE"
 //TODO REFACTOR
 
 TextEngine *TextEngine::textEngine;
@@ -32,32 +32,32 @@ void TextEngine::getPixamapFromString(const std::string &pString, PixaMap *pixaM
     {
         ch = pString[i];
 
-        KSLOGD(TAGLOG,"loadGlyph %c",ch);
+        KSLOGD(LOGTAG, "loadGlyph %c", ch);
 
         glyph_index = FT_Get_Char_Index(fontFace,ch);
 
         if(glyph_index == 0)
         {
-            KSLOGD(TAGLOG,"error get char index");
+            KSLOGD(LOGTAG, "error get char index");
         }
         fterror = FT_Load_Glyph(fontFace, glyph_index, FT_LOAD_DEFAULT);
         if (fterror)
         {
-            KSLOGE(TAGLOG,"error loading glyph");
+            KSLOGE(LOGTAG, "error loading glyph");
             return;
         }
 
         fterror =FT_Get_Glyph(fontFace->glyph,glyphs+i);// FT_Render_Glyph(fontFace->glyph,FT_RENDER_MODE_NORMAL);//use renderflages oabove
         if (fterror)
         {
-            KSLOGE(TAGLOG,"error getting glyph");
+            KSLOGE(LOGTAG, "error getting glyph");
             return;
         }
 
         fterror = FT_Glyph_To_Bitmap(glyphs+i,FT_RENDER_MODE_NORMAL,NULL,0);
         if (fterror)
         {
-            KSLOGE(TAGLOG,"errorConverting glyph to bitmap");
+            KSLOGE(LOGTAG, "errorConverting glyph to bitmap");
             return;
         }
 
@@ -73,14 +73,14 @@ void TextEngine::getPixamapFromString(const std::string &pString, PixaMap *pixaM
             ymax=box.yMax;
         }
 
-        KSLOGD(TAGLOG,"the bdfdf is %d,%d,%d",box.xMax,box.xMin,box.yMin);
+        KSLOGD(LOGTAG, "the bdfdf is %d,%d,%d", box.xMax, box.xMin, box.yMin);
         bitmaps[i]=(FT_BitmapGlyph)glyphs[i];
     }
 
 
     //RENDERING STARTS FROMHERE TO GIVE PIXMAP
     stringHeight=ymax-ymin;
-    KSLOGD(TAGLOG,"the height is %d",stringHeight);
+    KSLOGD(LOGTAG, "the height is %d", stringHeight);
 
     if(pixaMap->pixels != NULL)
     {
@@ -93,7 +93,7 @@ void TextEngine::getPixamapFromString(const std::string &pString, PixaMap *pixaM
     if(pixaMap->pixels != NULL)
     {
         pixaMap->width=totalStringWidth;pixaMap->height=stringHeight;
-        KSLOGE(TAGLOG,"The totla width and height are %d and %d", pixaMap->width, pixaMap->height);
+        KSLOGE(LOGTAG, "The totla width and height are %d and %d", pixaMap->width, pixaMap->height);
         uint penX = 0, penY = stringHeight+ymin;//penY=stringHeight-1;if(previously not +1)
         unsigned char *pixels = (unsigned char *) pixaMap->pixels;
         memset(pixels, 0, totalStringWidth * stringHeight * sizeof(uint32_t));
@@ -136,7 +136,7 @@ void TextEngine::getPixamapFromString(const std::string &pString, PixaMap *pixaM
 
     }
 
-    KSLOGD(TAGLOG,"got Image FromString");
+    KSLOGD(LOGTAG, "got Image FromString");
 
 }
 
@@ -147,30 +147,30 @@ status TextEngine::setFont(const char *fontFile)
 
     if (fterror == FT_Err_Unknown_File_Format )
     {
-        KSLOGE(TAGLOG,"FATAL-ERRROR : UNKNOWN FONT FILEFORMAT =>RESET FONT WITH RIGHT FILE FORMAT");
+        KSLOGE(LOGTAG, "FATAL-ERRROR : UNKNOWN FONT FILEFORMAT =>RESET FONT WITH RIGHT FILE FORMAT");
         return -1;//TODO status
     }
     else if(fterror)
     {
-        KSLOGE(TAGLOG,"FATAL-ERRROR : ERROR LOADING FONT  =>RESET FONT WITH RIGHT FONT FILE");
+        KSLOGE(LOGTAG, "FATAL-ERRROR : ERROR LOADING FONT  =>RESET FONT WITH RIGHT FONT FILE");
         return -1;
     }
-    KSLOGD(TAGLOG,"font set successfully glyphCnt %ld",fontFace->num_glyphs);
+    KSLOGD(LOGTAG, "font set successfully glyphCnt %ld", fontFace->num_glyphs);
     return 0;
 }
 status TextEngine::setTextSize(int width, int height)
 {
 
-    KSLOGD(TAGLOG,"%f xdpi %f ydpi",displayParams.xdpi,displayParams.ydpi);
+    KSLOGD(LOGTAG, "%f xdpi %f ydpi", displayParams.xdpi, displayParams.ydpi);
     FT_Error  fterror = FT_Set_Pixel_Sizes(fontFace, 0, height);//FT_Set_Char_Size(fontFace,0*64,height*64,0,0);////
     if(fterror)
     {
-        KSLOGE(TAGLOG,"FATAL ERROR : COULD NOT SET font SIZE =>RETRY OR .........");
+        KSLOGE(LOGTAG, "FATAL ERROR : COULD NOT SET font SIZE =>RETRY OR .........");
         return -1;
     }
     fontHeight = height;
     fontWidth = width;
-    KSLOGD(TAGLOG,"set font size %d , %d",fontWidth,height);
+    KSLOGD(LOGTAG, "set font size %d , %d", fontWidth, height);
     return 0;
 }
 status TextEngine::init()
@@ -178,13 +178,13 @@ status TextEngine::init()
     FT_Error fterror=FT_Init_FreeType(&ftLibrary);
     if(fterror!=0)
     {
-        KSLOGE(TAGLOG,"FATAL-ERROR : ERROR INITIALIZING FREETYPE LIBRARY");
+        KSLOGE(LOGTAG, "FATAL-ERROR : ERROR INITIALIZING FREETYPE LIBRARY");
         return -1;
     }
-    KSLOGI(TAGLOG,"successfully initialized freetype");
+    KSLOGI(LOGTAG, "successfully initialized freetype");
     FT_Int major, minor, patch;
     FT_Library_Version(ftLibrary, &major, &minor, &patch);
-    KSLOGD(TAGLOG,"FreeType's version is %d.%d.%d\n", major, minor, patch);
+    KSLOGD(LOGTAG, "FreeType's version is %d.%d.%d\n", major, minor, patch);
     if(setFont(defaultFont) != 0)
         return -1;
     fontWidth = defaultFontSize,fontHeight = defaultFontSize;

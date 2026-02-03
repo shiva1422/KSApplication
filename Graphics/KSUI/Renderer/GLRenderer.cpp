@@ -21,7 +21,7 @@ GLRenderer::~GLRenderer() {
 }
 
 bool GLRenderer::onRender() {
-    //TODO backGroudn
+
    //KSLOGI("onRender","drawn");
     glClearColor(r,g,b,a);
     glClear(GL_COLOR_BUFFER_BIT);

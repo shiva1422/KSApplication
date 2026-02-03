@@ -4,7 +4,7 @@
 
 #include "HSIImageView.h"
 #include "Shader.h"
-#define TAGLOG "HSIImageView"
+#define LOGTAG "HSIImageView"
 HSIImageView::HSIImageView() : GLImageView() {
 
     if(instanceCount == 0)
@@ -89,7 +89,7 @@ void HSIImageView::doEditProcess() {
     glDispatchCompute(texture.getWidth(),texture.getHeight(),1);//TODO divide
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
   //  GLContext::getError(TAGLOG);
-    GLContext::getError(TAGLOG);
+    GLContext::getError(LOGTAG);
 
     bNeedProcess = false;
 }

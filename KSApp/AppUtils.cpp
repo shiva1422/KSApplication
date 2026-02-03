@@ -47,6 +47,11 @@ android_app *AppUtils::getAndroidApp() {
     return AppJavaCalls::getApp();
 }
 
+void AppUtils::goBack() {
+
+    AppJavaCalls::goBack();
+}
+
 
 
 

@@ -7,7 +7,7 @@
 #include <Logger/KSLog.h>
 #include "InputEvent.h"
 #include "MotionEvent.h"
-#define TAGLOG "INPUT EVENT"
+#define LOGTAG "INPUT EVENT"
 
 
 //TODO return type
@@ -23,7 +23,7 @@ int32_t AndroidEvents::onInputEvent(android_app* papp, AInputEvent* event)
     }
     else if(eventWrap.getEventType() == ks::EInputEventType::KEY)
     {
-        KSLOGD(TAGLOG,"KeyEvent");
+        KSLOGD(LOGTAG, "KeyEvent");
         return keyEventInterceptor->onInterceptKeyEvent(event);
     }
     else if(eventWrap.getEventType() == ks::EInputEventType::FOCUS)

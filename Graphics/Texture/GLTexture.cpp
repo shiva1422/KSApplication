@@ -6,9 +6,10 @@
 #include <Logger/KSLog.h>
 #include <string>
 #include <Media/KSImage/KSImageLoader.h>
+#include <assert.h>
 #include "GLTexture.h"
 
-#define TAGLOG "GLTexture"
+#define LOGTAG "GLTexture"
 
 GLTexture::GLTexture(const char* path)
 {
@@ -32,6 +33,9 @@ bool GLTexture::setImage(const char* path)
         res =  setTextureImage(image);
         delete image;
         image = nullptr;
+    }else
+    {
+        assert(false);
     }
 
     return res;
@@ -45,7 +49,7 @@ bool GLTexture::setTextureImage(KSImage *image)
     if( !image || !image->isValid())
     {
         //TODO as need now the previous texture remains if existed.
-        KSLOGE(TAGLOG,"couldn't create, invalid image");
+        KSLOGE(LOGTAG, "couldn't create, invalid image");
         bCreated = false;//the previous texture is still hold true
         return bCreated;
     }
@@ -54,7 +58,7 @@ bool GLTexture::setTextureImage(KSImage *image)
 
         if(( image->width != width || image->height != height))
         {
-            KSLOGD(TAGLOG,"Deleting texture");
+            KSLOGD(LOGTAG, "Deleting texture");
             if(glIsTexture(tex))
             glDeleteTextures(1,&tex);
             tex = 0;

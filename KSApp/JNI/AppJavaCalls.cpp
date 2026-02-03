@@ -57,6 +57,7 @@ bool AppJavaCalls::attachThreadAndFindClass()
 
     if(!app)
     {
+        assert(false);
         return false;
     }
         vm = app->activity->vm;
@@ -97,6 +98,7 @@ KSImage* AppJavaCalls::loadImageAsset(const char *path)
     JNIImage *image = nullptr;
     if(attachThreadAndFindClass())
     {
+
         jmethodID mid = env->GetMethodID(cls, "loadImageAsset", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
         if (mid == 0)
         {
@@ -116,12 +118,49 @@ KSImage* AppJavaCalls::loadImageAsset(const char *path)
             env->DeleteLocalRef(bitmap);
         }
 
+    }else
+    {
+        assert(false);
     }
 
     detachThread();//can result in error, above else not covered
 
     return image;
 }
+
+KSImage *AppJavaCalls::loadImageFile(const char *path) {
+
+    KSImage *image = nullptr;
+    if(attachThreadAndFindClass())
+    {
+        jmethodID mid = env->GetMethodID(cls, "loadImageFile", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+        if (mid == 0)
+        {
+            KSLOGE(TAGJNI,"error obtaining the method id get loadImageAsset");
+            detachThread();
+            return image;
+        }
+
+        jstring filePathJava = env->NewStringUTF(path);//TODO vclear remember
+        jobject bitmap = env->CallObjectMethod(app->activity->clazz, mid,filePathJava);
+        if (bitmap != NULL)
+        {
+
+                env->NewLocalRef(bitmap);
+                image = new JNIImage(env,bitmap);
+                env->DeleteLocalRef(bitmap);
+
+        }
+    }else
+        {
+            assert(false);
+        }
+
+    detachThread();//can result in error, above else not covered//TODO
+
+    return image;
+}
+
 
 void AppJavaCalls::gotoPlayStore() {
 
@@ -257,55 +296,24 @@ void AppJavaCalls::onApplicationCreated(long appHandle) {
 
 }
 
-KSImage *AppJavaCalls::loadImageFile(const char *path) {
+void AppJavaCalls::goBack() {
 
-    KSImage *image = nullptr;
     if(attachThreadAndFindClass())
     {
-        jmethodID mid = env->GetMethodID(cls, "loadImageFile", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+        jmethodID mid = env->GetMethodID(cls, "goBack", "()V");
         if (mid == 0)
         {
-            KSLOGE(TAGJNI,"error obtaining the method id get loadImageAsset");
-            detachThread();
-            return image;
-        }
-
-        jstring filePathJava = env->NewStringUTF(path);//TODO vclear remember
-        jobject bitmap = env->CallObjectMethod(app->activity->clazz, mid,filePathJava);
-        if (bitmap != NULL)
+            KSLOGE(TAGJNI,"error obtaining the method id get OnCreate");
+            //detachThread();
+            return ;
+        }else
         {
-            KSLOGD(TAGJNI,"successfully obtained the bitmap");
-            AndroidBitmapInfo bitmapInfo;
-            if (AndroidBitmap_getInfo(env, reinterpret_cast<jobject>(bitmap), &bitmapInfo) < 0)
-            {
-                KSLOGE(TAGJNI,"coulnd not obtain bitmap info");
-                return image;
-            }
-            if (bitmapInfo.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-                KSLOGE(TAGJNI,"THE BITMAP FORMA TNOT NOT RGBA 8888,implement other formats");/////?improve to support others
-                return image;
-            }
-            image = new KSImage();
-            image->width  = bitmapInfo.width;
-            image->height = bitmapInfo.height;
-            // image.stride = bitmapInfo.stride;//TODO pixel format
-            KSLOGD(TAGJNI,"load image- width-%d and height -%d",image->width,image->height);
-            if (AndroidBitmap_lockPixels(env, bitmap, (void **) &image->data) < 0)
-            {
-                KSLOGE(TAGJNI,"load image the bitmap could not be locked");
-                assert(false);
-                delete image;
-                image = nullptr;
-                return image;
-            }
-            //setTexture of imageView or do anything with image and then unlock as this might be garbage collectore after return;
-            AndroidBitmap_unlockPixels(env, bitmap);/////is unlock necessary ?
-            env->DeleteLocalRef(bitmap);//TODO
+            KSLOGD(TAGJNI,"Goint to Back Activity :");
+            env->CallVoidMethod(getApp()->activity->clazz,mid);
         }
     }
 
-    //detachThread();//can result in error, above else not covered//TODO
-
-    return image;
+    detachThread();
 }
+
 

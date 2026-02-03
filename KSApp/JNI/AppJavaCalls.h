@@ -45,6 +45,8 @@ public:
 
     static void* createNativeAppInstance();
 
+    static void goBack();
+
 private:
     static jclass cls;
     static JavaVM *vm;

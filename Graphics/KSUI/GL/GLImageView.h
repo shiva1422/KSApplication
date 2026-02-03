@@ -8,6 +8,7 @@
 
 #include <Texture/GLTexture.h>
 #include "GLView.h"
+#include "../../../../../android/SequensaPhoto/app/src/main/jni/Apps/PhotoAndVideo/PhotoEditor/Texture/TextureID.hpp"
 #include<array>
 
 class GLImageView : public GLView {
@@ -60,14 +61,14 @@ public:
     ks::Size<int> getTextureSize();
 
 
-   /* Texture getTexture()
+    Texture getTexture()
     {
         Texture t;
         t.id = texture.getTexture();
         t.width = texture.getWidth();
         t.height = texture.getHeight();
         return t;
-    }*/
+    }
 protected:
     //TODO reset as req
     GLTexture texture;
