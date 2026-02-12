@@ -5,14 +5,16 @@
 #include <Logger/KSLog.h>
 #include "AppJavaCalls.h"
 #include "JNIImage.hpp"
+#include "KSNativeActivityBridge.hpp"
 #include <android/bitmap.h>
 #include <assert.h>
+#include <game-activity/native_app_glue/android_native_app_glue.h>
+#include <game-text-input/gametextinput.h>
+#include <KSApp/Events/KeyEvent.h>
 
 #define TAGJNI "AppJavaCall"
 
-jclass AppJavaCalls::cls;
 JavaVM* AppJavaCalls::vm;
-JNIEnv* AppJavaCalls::env;
 android_app* AppJavaCalls::app;
 
  int AppJavaCalls::attachCount = 0;
@@ -21,21 +23,29 @@ android_app* AppJavaCalls::app;
  * TODO map function names and params instead of doing seperate for each function;
  * detachThead can be improved a bit
  * clear memory checks
+ * reduce redundancies;
  * */
 bool AppJavaCalls::getDisplayMetrics(DisplayMetrics &displayMetrics)
 {
-    if(attachThreadAndFindClass())
+
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "getDisplayParams", "()[F");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "getDisplayParams", "()[F");
         if (mid == 0)
         {
            KSLOGE(TAGJNI,"error obtaining the method id get DisplayMetrics");
+           if(didAttach)
             detachThread();
             return false;
         }
-        jfloatArray  displayParamsArray=(jfloatArray) env->CallObjectMethod(app->activity->clazz,mid);
+        jfloatArray  displayParamsArray=(jfloatArray) threadEnv->CallObjectMethod(app->activity->javaGameActivity,mid);
         // jsize length=env->GetArrayLength(displayParamsArray);
-        jfloat  *params=env->GetFloatArrayElements(displayParamsArray,0);
+        jfloat  *params= threadEnv->GetFloatArrayElements(displayParamsArray,0);
         displayMetrics.screenWidth=params[0];
         displayMetrics.screenHeight=params[1];
         displayMetrics.density=params[2];
@@ -44,50 +54,57 @@ bool AppJavaCalls::getDisplayMetrics(DisplayMetrics &displayMetrics)
         displayMetrics.scaledDensity=params[5];
         displayMetrics.xdpi=params[6];
         displayMetrics.ydpi=params[7];
-        env->ReleaseFloatArrayElements(displayParamsArray,params,0);
+        threadEnv->ReleaseFloatArrayElements(displayParamsArray,params,0);
+
+        if(didAttach)
         detachThread();
         return true;
     }
-    detachThread();
+
     return false;
 
 }
-bool AppJavaCalls::attachThreadAndFindClass()
+bool AppJavaCalls::attachThread(bool &didAttach, JNIEnv **threadEnv)
 {
+
+    didAttach = false;
 
     if(!app)
     {
         assert(false);
         return false;
     }
-        vm = app->activity->vm;
-        if(vm->AttachCurrentThread(&env, NULL) == JNI_OK)
+
+    vm = app->activity->vm;
+
+    if(vm->GetEnv((void **)threadEnv,JNI_VERSION_1_6) != JNI_OK)
+    {
+        if (vm->AttachCurrentThread(threadEnv, nullptr) != JNI_OK)
         {
-            attachCount++;
-        }
-        if (!env)
-        {
-            KSLOGE(TAGJNI, "JNIEnv(null) %s and %d ", __func__ , __LINE__);
-            detachThread();
+            KSLOGE(TAGJNI, "AttachCurrentThread failed");
+            *threadEnv = nullptr;
             return false;
         }
-        cls = (env)->GetObjectClass(app->activity->clazz);
-        if(!cls)
-        {
-            KSLOGE(TAGJNI,"could not get java object class %s %d",__func__ ,__LINE__);
-            detachThread();
-            return false;
-        }
-        return true ;
+        didAttach = true;
+    }
+
+
+    if (!(*threadEnv))
+    {
+        KSLOGE(TAGJNI, "JNIEnv(null) %s and %d ", __func__ , __LINE__);
+
+        didAttach = false;
+        return false;
+
+    }
+
+    return true ;
 
 }
 
 void AppJavaCalls::detachThread()
 {
-    attachCount--;
-    if(attachCount == 0)
     vm->DetachCurrentThread();//TODO thread specific,
-
 }
 
 /*
@@ -96,26 +113,33 @@ void AppJavaCalls::detachThread()
 KSImage* AppJavaCalls::loadImageAsset(const char *path)
 {
     JNIImage *image = nullptr;
-    if(attachThreadAndFindClass())
+
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
 
-        jmethodID mid = env->GetMethodID(cls, "loadImageAsset", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "loadImageAsset", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get loadImageAsset");
+            if(didAttach)
             detachThread();
+            didAttach = false;
             return image;
         }
 
         KSLOGD(TAGJNI,"Import image %s",path);
-        jstring filePathJava = env->NewStringUTF(path);//TODO vclear remember
-        jobject bitmap = env->CallObjectMethod(app->activity->clazz, mid,filePathJava);
+        jstring filePathJava = threadEnv->NewStringUTF(path);//TODO vclear remember
+        jobject bitmap = threadEnv->CallObjectMethod(app->activity->javaGameActivity, mid,filePathJava);
 
         if (bitmap != NULL)
         {
-            env->NewLocalRef(bitmap);
-            image = new JNIImage(env,bitmap);
-            env->DeleteLocalRef(bitmap);
+            threadEnv->NewLocalRef(bitmap);
+            image = new JNIImage(threadEnv,bitmap);
+            threadEnv->DeleteLocalRef(bitmap);
         }
 
     }else
@@ -123,6 +147,7 @@ KSImage* AppJavaCalls::loadImageAsset(const char *path)
         assert(false);
     }
 
+    if(didAttach)
     detachThread();//can result in error, above else not covered
 
     return image;
@@ -131,24 +156,31 @@ KSImage* AppJavaCalls::loadImageAsset(const char *path)
 KSImage *AppJavaCalls::loadImageFile(const char *path) {
 
     KSImage *image = nullptr;
-    if(attachThreadAndFindClass())
+
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "loadImageFile", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "loadImageFile", "(Ljava/lang/String;)Landroid/graphics/Bitmap;");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get loadImageAsset");
+            if(didAttach)
             detachThread();
+            didAttach = false;
             return image;
         }
 
-        jstring filePathJava = env->NewStringUTF(path);//TODO vclear remember
-        jobject bitmap = env->CallObjectMethod(app->activity->clazz, mid,filePathJava);
+        jstring filePathJava = threadEnv->NewStringUTF(path);//TODO vclear remember
+        jobject bitmap = threadEnv->CallObjectMethod(app->activity->javaGameActivity, mid,filePathJava);
         if (bitmap != NULL)
         {
 
-                env->NewLocalRef(bitmap);
-                image = new JNIImage(env,bitmap);
-                env->DeleteLocalRef(bitmap);
+            threadEnv->NewLocalRef(bitmap);
+            image = new JNIImage(threadEnv,bitmap);
+            threadEnv->DeleteLocalRef(bitmap);
 
         }
     }else
@@ -156,6 +188,7 @@ KSImage *AppJavaCalls::loadImageFile(const char *path) {
             assert(false);
         }
 
+    if(didAttach)
     detachThread();//can result in error, above else not covered//TODO
 
     return image;
@@ -164,50 +197,69 @@ KSImage *AppJavaCalls::loadImageFile(const char *path) {
 
 void AppJavaCalls::gotoPlayStore() {
 
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "gotoPlaystore", "()V");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "gotoPlaystore", "()V");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get gotoPlayStore");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return ;
         }
-        env->CallVoidMethod(app->activity->clazz,mid);
+        threadEnv->CallVoidMethod(app->activity->javaGameActivity,mid);
     }
 
+    if(didAttach)
     detachThread();
 }
 
 void AppJavaCalls::openPrivacyPolicy() {
 
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "openPrivacyPolicy", "()V");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "openPrivacyPolicy", "()V");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get openPrivacy Policy");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return ;
         }
-        env->CallVoidMethod(app->activity->clazz,mid);
+        threadEnv->CallVoidMethod(app->activity->javaGameActivity,mid);
     }
 
+    if(didAttach)
     detachThread();
 }
 
 void AppJavaCalls::showBannerAd() {
 
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "showBannerAd", "()V");
+
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "showBannerAd", "()V");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get showBannerAd");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return ;
         }
-        env->CallVoidMethod(app->activity->clazz,mid);
+        threadEnv->CallVoidMethod(app->activity->javaGameActivity,mid);
     }
 
     detachThread();
@@ -216,40 +268,41 @@ void AppJavaCalls::showBannerAd() {
 
 void AppJavaCalls::dismissBannerAd() {
 
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "dismissBannerAd", "()V");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "dismissBannerAd", "()V");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id dismissBannerAd");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return ;
         }
-        env->CallVoidMethod(app->activity->clazz,mid);
+        threadEnv->CallVoidMethod(app->activity->javaGameActivity,mid);
     }
 
+    if(didAttach)
     detachThread();
 
 }
 
-bool AppJavaCalls::toggleKeyboard() {
+bool AppJavaCalls::showKeyboard() {
 
-    JNIEnv *jni;
-    app->activity->vm->AttachCurrentThread( &jni, NULL );
+   KSNativeActivityBridge::runOnJavaUIThread([&](JNIEnv* env){
+       if(ks::KeyboardController::gameTextInput == nullptr)
+       {
+           ks::KeyboardController::gameTextInput = GameTextInput_init(env,1024);//TODO
+       }
 
-    jclass cls = jni->GetObjectClass(app->activity->clazz);
-    jmethodID methodID = jni->GetMethodID(cls, "getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;" );
-    jstring service_name = jni->NewStringUTF("input_method");
-    jobject input_service = jni->CallObjectMethod(app->activity->clazz, methodID, service_name);
+       GameTextInput_setEventCallback(ks::KeyboardController::gameTextInput,ks::KeyboardController::onTextInput, nullptr);
+       GameTextInput_showIme(ks::KeyboardController::gameTextInput,0);
 
-    jclass input_service_cls = jni->GetObjectClass(input_service);
-    methodID = jni->GetMethodID(input_service_cls, "toggleSoftInput", "(II)V");
-    jni->CallVoidMethod(input_service, methodID, 0, 0);
 
-    jni->DeleteLocalRef(service_name);
-
-    app->activity->vm->DetachCurrentThread();
-
+   });
     return true;
 }
 
@@ -257,21 +310,27 @@ bool AppJavaCalls::toggleKeyboard() {
 void* AppJavaCalls::createNativeAppInstance() {
 
     void* NApp = nullptr;
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "createMyNative", "()J");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "createMyNative", "()J");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get OnCreate");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return NApp ;
         }
 
-        jlong nApp =env->CallLongMethod(app->activity->clazz,mid);
+        jlong nApp =threadEnv->CallLongMethod(app->activity->javaGameActivity,mid);
 
         NApp = reinterpret_cast<void*>(nApp);
     }
 
+    if(didAttach)
     detachThread();
 
     return NApp;
@@ -280,40 +339,72 @@ void* AppJavaCalls::createNativeAppInstance() {
 
 void AppJavaCalls::onApplicationCreated(long appHandle) {
 
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "onNativeAppCreated", "(J)V");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "onNativeAppCreated", "(J)V");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get OnCreate");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return ;
         }
-        env->CallVoidMethod(app->activity->clazz,mid,appHandle);
+        threadEnv->CallVoidMethod(app->activity->javaGameActivity,mid,appHandle);
     }
 
+    if(didAttach)
     detachThread();
 
 }
 
 void AppJavaCalls::goBack() {
 
-    if(attachThreadAndFindClass())
+    bool didAttach;
+    JNIEnv* threadEnv = nullptr;
+    if(attachThread(didAttach, &threadEnv))
     {
-        jmethodID mid = env->GetMethodID(cls, "goBack", "()V");
+        jclass cls = threadEnv->GetObjectClass(app->activity->javaGameActivity);
+
+        jmethodID mid = threadEnv->GetMethodID(cls, "goBack", "()V");
         if (mid == 0)
         {
             KSLOGE(TAGJNI,"error obtaining the method id get OnCreate");
-            //detachThread();
+            if(didAttach)
+            detachThread();
             return ;
         }else
         {
             KSLOGD(TAGJNI,"Goint to Back Activity :");
-            env->CallVoidMethod(getApp()->activity->clazz,mid);
+            threadEnv->CallVoidMethod(getApp()->activity->javaGameActivity,mid);
         }
     }
 
+    if(didAttach)
     detachThread();
 }
 
 
+
+void AppJavaCalls::init(android_app *app) {
+
+        AppJavaCalls::app=app;
+
+        bool didattach;
+        JNIEnv *env;
+        if(attachThread(didattach,&env))
+        {
+            globalActivity = env->NewGlobalRef(app->activity->javaGameActivity);;//TODO delete;
+
+        }
+
+        if(didattach)detachThread();
+
+
+}
+
+
+jobject AppJavaCalls::globalActivity = nullptr;

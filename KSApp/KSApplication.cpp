@@ -19,6 +19,10 @@
 #include <Shader.h>
 #include <KSIO/FileManager.h>
 #include <vector>
+#include <game-activity/GameActivity.h>
+#include <game-text-input/gametextinput.h>
+#include <KSApp/Events/KeyEvent.h>
+
 
 #define APPTAG  "KSApplication"
 #define AppLogV(x) KSLOGV(APPTAG,x)
@@ -31,8 +35,14 @@ KSApplication::KSApplication(android_app *papp,std::string appName)
     app = papp;
     AndroidEvents::setMotionEventInterceptor(this);
     AndroidEvents::setKeyEventInterceptor(this);
+
+    android_app_set_key_event_filter(app, NULL);
+    android_app_set_motion_event_filter(app, NULL);
     app->onAppCmd = AndroidEvents::onAppCmd;
-    app->onInputEvent = AndroidEvents::onInputEvent;
+    app->textInputState = 0;
+    ks::KeyboardController::init(app);
+
+    //app->onInputEvent = AndroidEvents::onInputEvent;
     app->userData = this;
     mAssetManager = this;
     fileManager = this;
@@ -86,14 +96,23 @@ void KSApplication::run()
     bool bPoll = false;
     do
     {
+        //(ALooper_pollOnce(engine.animating ? 0 : -1, nullptr, &events,
+        //                 (void**)&source)) >= 0) //TODO use above when using invalidation.
         if((eventId = ALooper_pollOnce(0,&fdesc,&events,(void **) &source)) >= 0)
         {
             if(source != NULL)
             {
+                // Process this app cycle or inset change event.
                 source->process(app,source);
                 bPoll = true;
             }
+
+            //check appDestroy here(TODO)
         }
+
+
+        handleInput();
+
 
         runTasks();
 
@@ -344,13 +363,14 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
 
     //if(!content->isPointInside(touchX,touchY)) return false;//TODO now only handling oneView check handling in ViewGroups
 
-    int32_t pointerIndex = me.getPointerIndex();
-    int32_t pointerId = me.getPointerId(pointerIndex);
-    float touchX = me.getX(pointerIndex);
-    float touchY = me.getY(pointerIndex);
+    assert(false);//Uncomment below TODO navigating to gameactivity;
+    int32_t pointerIndex = 0;//me.getPointerIndex();
+    int32_t pointerId = me.getPointerId();
+    float touchX = me.getX();
+    float touchY = me.getY();
 
 
-    static std::unordered_set<TouchID> touchesActive;//
+    bool res = false;
 
     switch(me.getAction())
     {
@@ -380,16 +400,16 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
         {
             KSLOGD("KSEVENT", " Action move Id - %d, index %d",pointerId,pointerIndex);//The id index would be first one when multiple touches active
 
-            int32_t pointerCount = me.getPointerCount();
+            int32_t pointerCount = 1;//me.getPointerCount();
             //processing for all pointers call only if historyValue and current value differ for particular index
             //TODO maybe need to check touch event history cause when swipes speed across screen some ponts may be missiong
             //therfore some enents may not be processed or events may be repeated check;
             KSLOGD("Action move:","count %d",pointerCount);
             for(int i = 0;i < pointerCount; ++i)
             {
-                touchX = me.getX(i);
-                touchY = me.getY(i);
-                pointerId = me.getPointerId(i);//TODO check historical value changed and dispatch,move else moving one finger will trigger motionevent on all view with fingers that haven't moved;
+                touchX = me.getX();
+                touchY = me.getY();
+                pointerId = me.getPointerId();//TODO check historical value changed and dispatch,move else moving one finger will trigger motionevent on all view with fingers that haven't moved;
 
                 /*
                //if(tThe view/touch listener handling this pointerId as touchdown/pointer down or hoveenter maybe.
@@ -474,6 +494,214 @@ bool KSApplication::onInterceptMotionEvent(const ks::MotionEvent  &me)
     }
     return false;
 }
+
+
+int32_t KSApplication::handleInput() {
+
+
+    //TODO into the Android::Events/Motion/Keyboard
+
+    android_input_buffer* inputBuffer = android_app_swap_input_buffers(app);
+
+    View *content = getContentView();
+
+    bool res = 0;
+
+    if(content && inputBuffer && inputBuffer->motionEventsCount)
+    {
+        for(auto eventIndex = 0; eventIndex < inputBuffer->motionEventsCount; ++eventIndex)
+        {
+            GameActivityMotionEvent* event = &inputBuffer->motionEvents[eventIndex];
+
+            KSLOGD(appName.c_str(),"Motion Event Count %llu",inputBuffer->motionEventsCount);
+
+           // ks::MotionEvent motionEvent(e);//TODO later;
+
+
+            auto pointerIndex = (event->action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;//can only done when required in swith beow
+            auto pointerId = event->pointers[pointerIndex].id;
+
+            auto touchX = GameActivityPointerAxes_getX(&event->pointers[pointerIndex]);
+            auto touchY = GameActivityPointerAxes_getY(&event->pointers[pointerIndex]);
+
+            auto action = static_cast<EMotionEventAction>(event->action & AMOTION_EVENT_ACTION_MASK);
+
+            KSLOGD(appName.c_str(),"event touch %f,%f",touchX,touchY);
+
+            //TODO motion range
+
+            switch (action) {
+
+                case EMotionEventAction::DOWN:
+                {
+                    KSLOGD("KSEVENT", " Action down Id - %d, index %d",pointerId,pointerIndex);
+
+                    if(content->isPointInside(touchX,touchY))
+                    {
+                        //TODO later avoid or do as required
+                        res |= View::dispatchTouchDown(content,touchX,touchY,pointerId,true);
+                    }
+                }break;
+
+                case EMotionEventAction::POINTER_DOWN:
+                {
+                    KSLOGD("KSEVENT", " PointerDown Id - %d, index %d",pointerId,pointerIndex);
+
+                    if(content->isPointInside(touchX,touchY))
+                    {
+                        //TODO later avoid or do as required
+                        res |= View::dispatchTouchDown(content,touchX,touchY,pointerId,false);
+                    }
+                }break;
+
+                case EMotionEventAction::MOVE:
+                {
+                    KSLOGD("KSEVENT", " Action move Id - %d, index %d",pointerId,pointerIndex);//The id index would be first one when multiple touches active
+                    //TODO maybe need to check touch event history cause when swipes speed across screen some ponts may be missiong
+
+
+
+                    int32_t pointerCount = event->pointerCount;
+                    //processing for all pointers call only if historyValue and current value differ for particular index
+                    //TODO maybe need to check touch event history cause when swipes speed across screen some ponts may be missiong
+                    //therfore some enents may not be processed or events may be repeated check;
+                    KSLOGD("Action move:","count %d",pointerCount);
+                    for(int i = 0;i < pointerCount; ++i)
+                    {
+                        touchX = GameActivityPointerAxes_getX(&event->pointers[i]);;
+                        touchY = GameActivityPointerAxes_getY(&event->pointers[i]);
+                        pointerId = event->pointers[i].id;
+                                              /*
+                                               * If a view is currently handling this pointerId (from ACTION_DOWN,
+                                               * ACTION_POINTER_DOWN, or HOVER_ENTER):
+                                               *
+                                               *   - If the touch remains inside that view, forward the MotionEvent to it.
+                                               *   - If the touch moves outside the view:
+                                               *         forward HOVER_EXIT to the current view, and
+                                               *         forward HOVER_ENTER to the view now under the touch.
+                                               *
+                                               */
+
+                        if(View::isHandlingTouch(content, pointerId))
+                        {
+                            if(content->isPointInside(touchX,touchY))
+                            {
+                                res |= View::dispatchMove(content,touchX,touchY,pointerId);//todo result?
+                            }
+                            else
+                            {
+                                res |= View::dispatchHoverExit(content,touchX,touchY,pointerId);//also hover enter to view at location
+                                //TODO hover exit of content and hover enter to whatever View is at this location since content view is the only one, no view for hover enter.
+                            }
+
+                        }
+                        else
+                        {
+                            //TODO
+                            KSLOGE("KSEVENT"," action moveunhandled Id - %d, index %d",pointerId,pointerIndex);
+                        }
+
+                    }
+
+
+                }break;
+                case EMotionEventAction::POINTER_UP:
+                {
+                    KSLOGD("KSEVENT", " Action pointer up Id - %d, index %d",pointerId,pointerIndex);
+                    //Consider hover enter exit TODO
+                    if(content->isPointInside(touchX,touchY))
+                    {
+                        //TODO later avoid or do as required
+                        res |= View::dispatchTouchUp(content,touchX,touchY,pointerId,false);
+                    }
+                }break;
+                case EMotionEventAction::UP:
+                {
+                    KSLOGD("KSEVENT", " Action up Id - %d, index %d",pointerId,pointerIndex);
+
+                    //Consider hover enter exit TODO
+                    //
+                    if(content->isPointInside(touchX,touchY) )//|| View::isHandlingTouch(content, pointerId) )//TODO send if View isHandlingTouch.irrespective of coordinates.
+                    {
+                        //TODO later avoid or do as required
+                        res |= View::dispatchTouchUp(content,touchX,touchY,pointerId,true);
+                    }else
+                    {
+                        KSLOGW("KSEVENT", "Action up warning");//Touch up outside content view/should already be handle in move,as hoverExit
+
+                    }
+
+                }break;
+
+
+                case EMotionEventAction::CANCEL:
+                {
+                    //TODO Cancel All Touches.
+                    if(content->isPointInside(touchX,touchY) )//|| View::isHandlingTouch(content, pointerId) )
+                    {
+                        //TODO later avoid or do as required
+
+                        res |= View::dispatchTouchUp(content,touchX,touchY,pointerId,false);//TODO not false but based on current pointer count.
+                    }else
+                    {
+                        KSLOGW("KSEVENT", "Action up warning");//Touch up outside content view/should already be handle in move,as hoverExit
+
+                    }
+
+                }break;
+
+                default:
+
+                    //TODO
+                    res |= 0;
+                    KSLOGE("KSEVENT","Action not handled defaulted %d",action);
+                    //assert(false);//TODO
+
+            }
+
+
+        }
+    }else
+    {
+        KSLOGW(appName.c_str(),"Didn't handle input");
+    }
+
+
+
+
+
+    /**
+     * THis is for hardware key events, for soft keyboard(IME) GameTextInput_setEventCallback.
+     */
+     //Wrap around KS Events,duplicate inputbuffer checks
+     if(inputBuffer && inputBuffer->keyEventsCount)
+     {
+
+         for(int i = 0; i < inputBuffer->keyEventsCount; ++i)
+         {
+             GameActivityKeyEvent* event = &inputBuffer->keyEvents[i];
+
+             int action = event->action;
+             int keyCode = event->keyCode;
+             int deviceId = event->deviceId;
+
+             KSLOGD(appName.c_str(),"Key event action %d, keyCode %d,deviceId %d",action,keyCode,deviceId);
+         }
+     }
+
+
+
+
+    if(inputBuffer)
+     {
+         android_app_clear_motion_events(inputBuffer);
+         android_app_clear_key_events(inputBuffer);
+
+     }
+
+    return res;
+}
+
 
 bool KSApplication::onInterceptKeyEvent(const KeyEvent &ke) {
     if(ke.getKeyAction() == EKeyAction::KEY_DOWN)
@@ -635,27 +863,63 @@ void KSApplication::onAppEvent(AppEvent event) {
 }
 
 
-
 AssetManager* AssetManager::mAssetManager = nullptr;
 FileManager* FileManager::fileManager = nullptr;
 bool  KeyboardController::bKeyboardOpen = false;
 bool KeyboardController::closeKeyboard() {
 
-    if(bKeyboardOpen)
-    {
-        AppUtils::toggleKeyboardOpen();//TODO
-        bKeyboardOpen = false;
-    }
 
+    GameTextInput_hideIme(gameTextInput, 0);//TODO flags
+
+    /* if(bKeyboardOpen)
+     {
+         AppUtils::showKeyboard();//TODO
+         bKeyboardOpen = false;
+     }
+ */
     return false;
 }
 
 bool KeyboardController::openKeyboard() {
-    if(!bKeyboardOpen)
-    {
-        AppUtils::toggleKeyboardOpen();//TODO make sure the keyboard is on;
-        bKeyboardOpen = true;
-    }
+
+
+    AppUtils::showKeyboard();//TODO make sure the keyboard is on;
 
     return false;
 }
+
+void KeyboardController::init(android_app *app) {
+
+
+}
+
+
+void KeyboardController::onTextInput(void *context, const GameTextInputState *textInputState) {
+
+    KSLOGD("KeyboardController","Key onTextInput %s",textInputState->text_UTF8);
+
+    /**
+     * auto* controller = static_cast<KeyboardController*>(context);
+
+    controller->setText(state->text_UTF8);
+    controller->setCursor(state->selectionStart);//TODO
+
+     */
+     /**
+      * TODO
+      * Build a native text field widget
+
+    Handle cursor movement + selection
+
+    Add Enter / Done handling
+
+    Support multiline editing
+
+    Integrate with your game UI system
+      */
+
+}
+
+android_app* KeyboardController::app = nullptr;
+GameTextInput* KeyboardController::gameTextInput = nullptr;
+

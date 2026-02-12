@@ -8,10 +8,11 @@
 #include <unordered_map>
 #include "android/input.h"
 #include "InputEvent.h"
-
 #include "stdint.h"
 
 #define TOUCHID_INVALID INT32_MIN
+
+class GameActivityMotionEvent;
 
 namespace ks{
 
@@ -40,28 +41,57 @@ namespace ks{
 
     };
 
-    class MotionEvent : public InputEvent{
+
+   // https://github.com/android/games-samples/blob/8ad152d7e571bb4d43136d6d6acc7a8cb4bf2cc6/agdk/game_controller/app/src/main/cpp/native_engine.cpp#L148
+   // https://developer.android.com/games/agdk/game-activity/migrate-native-activity
+   // https://developer.android.com/games/agdk/game-activity/get-started
+
+
+    class MotionEvent {
 
     public:
 
-        //TODO inside class def methods already inlined
-        MotionEvent(AInputEvent *e):ks::InputEvent(e){};
 
-        KSFORCEINLINE EMotionEventAction getAction()const{return static_cast<EMotionEventAction>(AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK);}
+        MotionEvent() = delete;
+
+        MotionEvent(GameActivityMotionEvent* me);
+
+
+        KSFORCEINLINE EMotionEventAction getAction()const{return action;}
 
         //each finger touched or mouse active has stored index,except move other actions(pointer up/down) are triggered with this index as current in the event
-        KSFORCEINLINE int32_t getPointerIndex() const{return (AMotionEvent_getAction(event) & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)>> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;}
+      //  KSFORCEINLINE int32_t getPointerIndex() const{return }
 
         //unlike pointerIndex pointerId is unque for a finger/mouse until its active,where as index changes every  touch/mouse action
-        KSFORCEINLINE int32_t getPointerId()const{return AMotionEvent_getPointerId(event,getPointerIndex());}
+        KSFORCEINLINE int32_t getPointerId()const{return pointerId;}//TODO can cache index check
 
-        KSFORCEINLINE int32_t getPointerId(int32_t index) const{return AMotionEvent_getPointerId(event,index);}
+       // KSFORCEINLINE int32_t getPointerId(int32_t index) const{return }
 
-        KSFORCEINLINE float getX(int32_t pointerIndex)const{return AMotionEvent_getX(event, pointerIndex);}
+        KSFORCEINLINE float getX()const{
+           // return GameActivityPointerAxes_getX(&event->pointers[getPointerIndex()]);
+            return x;
+        }//TODO can cache pointer index
 
-        KSFORCEINLINE float getY(int32_t pointerIndex)const{return AMotionEvent_getY(event, pointerIndex);}
+        KSFORCEINLINE float getY()const{
+           // return GameActivityPointerAxes_getY(&event->pointers[getPointerIndex()]);
+            return y;
+        }
 
-        KSFORCEINLINE int getPointerCount()const{return AMotionEvent_getPointerCount(event);}
+
+
+
+    private:
+
+        GameActivityMotionEvent *event = nullptr;
+
+        EMotionEventAction action;
+
+        float x, y;
+
+        int32_t pointerId = TOUCHID_INVALID;
+
+
+        //TODO add Motion Source /Touchscreen/mouse
 
 
     };

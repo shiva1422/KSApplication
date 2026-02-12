@@ -6,19 +6,19 @@
 #define KALASOFT_APPJAVACALLS_H
 
 
-#include <android_native_app_glue.h>
 #include <Graphics/Display.h>
 #include <CMedia/KSImage.h>
+#include <jni.h>
+#include <game-text-input/gametextinput.h>
 
+struct android_app;
 class AppJavaCalls {
 
 
 public:
 
-    static void init(android_app *app)
-    {
-        AppJavaCalls::app=app;
-    }
+    static void init(android_app *app);
+
 
     static android_app* getApp(){return app;}
     static bool getDisplayMetrics(DisplayMetrics &displayMetrics);
@@ -33,7 +33,7 @@ public:
 
     static void dismissBannerAd();
 
-    static bool toggleKeyboard();
+    static bool showKeyboard();
 
 
     static KSImage* loadImageAsset(const char* path);
@@ -48,14 +48,14 @@ public:
     static void goBack();
 
 private:
-    static jclass cls;
     static JavaVM *vm;
-    static JNIEnv *env;
     static android_app *app;
-    static bool attachThreadAndFindClass();
+    static jobject globalActivity;
+    static bool attachThread(bool &didAttach, JNIEnv **threadEnv);
     static void detachThread();
 
     static int attachCount;
+
 };
 
 

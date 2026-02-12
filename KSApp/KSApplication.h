@@ -7,7 +7,7 @@
 #ifndef KALASOFT_KSAPPLICATION_H
 #define KALASOFT_KSAPPLICATION_H
 
-#include <android_native_app_glue.h>
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #include <Graphics/GLContext.h>
 #include <Graphics/Display.h>
 #include <Graphics/KSUI/Renderer/GLRenderer.h>
@@ -22,6 +22,7 @@
 #include <KSApp/Events/KeyEvent.h>
 #include <KSApp/Events/AppEvent.hpp>
 #include <KSApp/Events/AppEvent.hpp>
+
 
 /*
  * TODO
@@ -147,6 +148,8 @@ protected:
 
     virtual void resizeUI(){}
 
+    int32_t handleInput();
+
 
 
 
@@ -199,12 +202,16 @@ protected:
     AppEvents *appEvents = nullptr;
 
 
+
 private:
 
     android_app *app;
 
     //UIRenderer
     KSWindow window;
+
+    GameTextInput* textInput = nullptr;
+
 
 
     //VulkanContext vulkanContext;

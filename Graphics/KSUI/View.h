@@ -105,6 +105,7 @@
 
         /**
          * @brief check if point (x,y) lies withing the bounds of this view
+         * //Todo Rename to containsPoint();
          */
         bool isPointInside(float x,float y) const
         {

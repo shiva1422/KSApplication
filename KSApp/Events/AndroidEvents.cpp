@@ -2,11 +2,11 @@
 // Created by kalasoft on 10/9/21.
 //
 
-#include <android_native_app_glue.h>
 #include "AndroidEvents.h"
 #include <Logger/KSLog.h>
 #include "InputEvent.h"
 #include "MotionEvent.h"
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #define LOGTAG "INPUT EVENT"
 
 
@@ -18,8 +18,9 @@ int32_t AndroidEvents::onInputEvent(android_app* papp, AInputEvent* event)
 
     if(eventWrap.getEventType() == ks::EInputEventType::MOTION)
     {
-        ks::MotionEvent me = event;
-        return  motionListener->onInterceptMotionEvent(me);
+        //ks::MotionEvent me = event;
+       // return  motionListener->onInterceptMotionEvent(me);
+        return 0;//migrating to game activity.
     }
     else if(eventWrap.getEventType() == ks::EInputEventType::KEY)
     {
@@ -93,9 +94,9 @@ void AndroidEvents::onAppCmd(android_app* app, int32_t cmd)
         case APP_CMD_WINDOW_REDRAW_NEEDED:
             application->onWindowRedrawNeeded();
             break;
-        case APP_CMD_INPUT_CHANGED:
-            application->onInputChange();
-            break;
+       // case APP_CMD_INPUT_CHANGED: //remove while migrating from native activity to game
+          //  application->onInputChange();
+           // break;
 
         case APP_CMD_CONTENT_RECT_CHANGED:
             application->onContentRectChanged();

@@ -20,7 +20,7 @@ public:
 
     static void dismissBanner();
 
-    static bool toggleKeyboardOpen();
+    static bool showKeyboard();
 
     static void onApplicationCreated(long appHandle);
 

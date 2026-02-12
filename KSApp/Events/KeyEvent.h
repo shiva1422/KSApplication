@@ -7,6 +7,10 @@
 
 #include "InputEvent.h"
 
+class GameTextInput;
+class android_app;
+class GameTextInputState;
+
 namespace ks {
 
     enum EKeyCode{
@@ -135,13 +139,26 @@ namespace ks {
     {
     public:
 
+        static void init(android_app* app);
+
         static bool openKeyboard();
 
         static bool closeKeyboard();
 
+        static GameTextInput* gameTextInput ;
+
+        static android_app* app ;
+
+        static void onTextInput(void* context,const GameTextInputState* textInputState);
+
+
+
+
     private:
 
         static bool bKeyboardOpen;
+
+
     };
 
 

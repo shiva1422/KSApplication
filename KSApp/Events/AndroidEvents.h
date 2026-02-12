@@ -5,6 +5,7 @@
 #ifndef KALASOFT_ANDROIDEVENTS_H
 #define KALASOFT_ANDROIDEVENTS_H
 
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #include "MotionEvent.h"
 #include "KeyEvent.h"
 

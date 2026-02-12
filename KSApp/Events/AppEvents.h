@@ -5,8 +5,8 @@
 #ifndef KALASOFT_APPEVENTS_H
 #define KALASOFT_APPEVENTS_H
 
-#include <android_native_app_glue.h>
 #include "AppEvent.hpp"
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 class KSApplication;
 
 
